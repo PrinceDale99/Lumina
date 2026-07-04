@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Midnight Compact Circuits for Lumina",
   "scripts": {
-    "compile": "compactc src/employee.compact --target typescript --out-dir build/",
+    "compile": "compact compile src/employee.compact build/",
     "deploy": "ts-node deploy.ts"
   },
   "dependencies": {
