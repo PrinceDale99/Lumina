@@ -22,6 +22,9 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    serverComponentsExternalPackages: ["lumina-circuits", "@midnight-ntwrk/compact-runtime"],
+  },
 };
 
 export default nextConfig;
