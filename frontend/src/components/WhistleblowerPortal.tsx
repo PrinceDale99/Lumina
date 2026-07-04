@@ -2,6 +2,7 @@ import { useDemoMode } from "@/lib/DemoModeContext";
 import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { generateZKProof } from "@/app/actions";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
@@ -35,30 +36,16 @@ export default function WhistleblowerPortal() {
       }, 4000);
     } else {
       try {
-        setZkLog(l => [...l, "Importing real Midnight Compact circuits..."]);
-        // Dynamic import to prevent SSR issues with WebAssembly/BigInts
-        const { pureCircuits } = await import("lumina-circuits/build/contract/index.js");
+        setZkLog(l => [...l, "Calling Next.js Server Node.js environment to run ZK Proof natively..."]);
         
-        setZkLog(l => [...l, "Executing pureCircuits.verifyEmployee() locally..."]);
-        
-        // Prepare cryptographic data
-        const bountyId = new Uint8Array(32);
-        const pubKey = new Uint8Array(32);
-        const privKey = new Uint8Array(32);
-        const sig = new Uint8Array(64);
-        const timestamp = BigInt(Date.now());
-        const validity = BigInt(0); // Valid
-        
-        // Execute the mathematical ZK circuit
-        const start = performance.now();
-        const [isValid, outPubKey, outBountyId] = pureCircuits.verifyEmployee(bountyId, pubKey, privKey, sig, timestamp, validity);
-        const timeTaken = (performance.now() - start).toFixed(2);
+        // Execute the mathematical ZK circuit via the secure Server Action
+        const result = await generateZKProof();
         
         setZkLog(l => [
           ...l, 
-          `Circuit executed in ${timeTaken}ms`,
-          `Output isValid: ${isValid}`,
-          `Nullifier Output computed.`,
+          `Circuit executed in ${result.timeTaken}ms`,
+          `Output isValid: ${result.isValid}`,
+          `Nullifier Output computed securely off-browser.`,
           "Proof Generated Successfully."
         ]);
         
