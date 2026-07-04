@@ -3,7 +3,7 @@ import { useWallet } from "@/lib/WalletContext";
 import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { generateZKProof, submitProofViaCardanoRelayer } from "@/app/actions";
+import { generateZKProof, submitProofViaMidnightRelayer } from "@/app/actions";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
@@ -72,7 +72,7 @@ export default function WhistleblowerPortal() {
     }, 2000);
   };
 
-  const submitToSoroban = async () => {
+  const submitToMidnight = async () => {
     if (!pubKey || !bountyId) {
       alert("Missing Connected Wallet or Bounty ID!");
       return;
@@ -80,13 +80,13 @@ export default function WhistleblowerPortal() {
 
     setIsSubmitting(true);
     try {
-      setZkLog(l => [...l, "Relaying to Cardano Preprod via anonymous burner..."]);
+      setZkLog(l => [...l, "Relaying to Midnight Testnet via anonymous burner..."]);
       const evidenceCid = "QmX9a... (Encrypted)";
       
-      const response = await submitProofViaCardanoRelayer(Number(bountyId), pubKey, evidenceCid);
+      const response = await submitProofViaMidnightRelayer(Number(bountyId), pubKey, evidenceCid);
       
       if (!response.success) {
-        throw new Error(response.error || "Transaction failed on Cardano Preprod");
+        throw new Error(response.error || "Transaction failed on Midnight Testnet");
       }
 
       setTxHash(response.txHash);
@@ -238,10 +238,10 @@ export default function WhistleblowerPortal() {
             <h2 className="text-2xl font-extrabold text-white">Connect Receiving Wallet</h2>
             <div className="text-slate-300 text-left bg-background p-6 rounded-2xl border border-white/10 shadow-inner relative overflow-hidden">
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-neon" />
-              <strong className="text-cyan-neon block mb-2 text-lg">CARDANO HYBRID RELAYER:</strong> 
+              <strong className="text-cyan-neon block mb-2 text-lg">MIDNIGHT HYBRID RELAYER:</strong> 
               Connect your Lace wallet to serve as your receiving address.
               <br/><br/>
-              The Lumina Relayer backend will dynamically generate a burner account to pay all gas fees and interact with the Cardano smart contract. The Midnight ZK-proof strictly binds your connected wallet as the destination address!
+              The Lumina Relayer backend will dynamically generate a burner account to pay all gas fees and interact with the Midnight smart contract. The Midnight ZK-proof strictly binds your connected wallet as the destination address!
             </div>
             
             {pubKey ? (
@@ -284,7 +284,7 @@ export default function WhistleblowerPortal() {
             </div>
             
             <motion.button 
-              onClick={submitToSoroban}
+              onClick={submitToMidnight}
               disabled={isSubmitting}
               whileHover={!isSubmitting ? { scale: 1.05 } : {}}
               whileTap={!isSubmitting ? { scale: 0.95 } : {}}
@@ -293,9 +293,9 @@ export default function WhistleblowerPortal() {
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
                   <div className="w-6 h-6 border-4 border-background border-t-transparent rounded-full animate-spin mr-3" />
-                  Broadcasting to Cardano Preprod...
+                  Broadcasting to Midnight Testnet...
                 </span>
-              ) : "Submit Proof to Cardano Escrow"}
+              ) : "Submit Proof to Midnight Escrow"}
             </motion.button>
           </motion.div>
         )}
@@ -307,12 +307,12 @@ export default function WhistleblowerPortal() {
             </div>
             <h2 className="text-3xl font-black text-white tracking-tight">Proof Submitted Successfully</h2>
             <p className="text-slate-400 text-lg">
-              Your Zero-Knowledge Proof has been verified by the Cardano smart contract. 
+              Your Zero-Knowledge Proof has been verified by the Midnight smart contract. 
               The escrow will be released to your anonymous wallet once arbiters approve the evidence.
             </p>
             <div className="bg-black/30 p-4 rounded-xl border border-white/5 font-mono text-sm text-green-neon/70 mt-4 break-all text-left">
-              TxHash: <a href={`https://preprod.cardanoscan.io/transaction/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
-              Network: Cardano Preprod
+              TxHash: <a href={`https://testnet.explorer.midnight.network/transaction/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
+              Network: Midnight Testnet
             </div>
             <button 
               onClick={() => setStep(1)}

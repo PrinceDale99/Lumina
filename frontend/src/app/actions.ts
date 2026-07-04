@@ -19,7 +19,7 @@ export async function generateZKProof(destAddress: string) {
   try {
     destWalletBuffer = StrKey.decodeEd25519PublicKey(destAddress);
   } catch (e) {
-    // If it's a Lace (Cardano) address or other format, fallback to SHA-256 hashing it into a 32-byte array
+    // If it's a Lace (Midnight) address or other format, fallback to SHA-256 hashing it into a 32-byte array
     const crypto = await import('crypto');
     destWalletBuffer = new Uint8Array(crypto.createHash('sha256').update(destAddress || "empty").digest());
   }
@@ -47,22 +47,22 @@ export async function generateZKProof(destAddress: string) {
   };
 }
 
-// Soroban Relayer functionality has been fully removed for the 100% Cardano Migration.
+// Soroban Relayer functionality has been fully removed for the 100% Midnight Migration.
 
-export async function submitProofViaCardanoRelayer(bountyId: number, laceAddress: string, evidenceCid: string) {
-  // Wait for 1.5 seconds to simulate Plutus V2 transaction building and signing
+export async function submitProofViaMidnightRelayer(bountyId: number, laceAddress: string, evidenceCid: string) {
+  // Wait for 1.5 seconds to simulate Compact smart contract transaction building and signing
   await new Promise((resolve) => setTimeout(resolve, 1500));
 
   // The Relayer (Node.js) verifies the Midnight ZK Proof locally.
-  // Once verified, the Relayer signs a Cardano transaction with its own private key.
-  // The Aiken Plutus contract verifies the Relayer's signature and releases the ADA/Tokens to the laceAddress.
+  // Once verified, the Relayer signs a Midnight transaction with its own private key.
+  // The Compact smart contract verifies the Relayer's signature and releases the tDUST to the laceAddress.
   
-  // Return a mock Blockfrost transaction hash on Cardano Preprod
+  // Return a mock Midnight transaction hash
   const mockTxHash = "0x" + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
 
   return {
     success: true,
     txHash: mockTxHash,
-    network: "Cardano Preprod"
+    network: "Midnight Testnet"
   };
 }

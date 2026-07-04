@@ -138,7 +138,7 @@ export default function RegulatorDashboard() {
       const response = await server.sendTransaction(signedTx);
       
       if (response.status === "ERROR") {
-        throw new Error("Transaction failed on Soroban");
+        throw new Error("Transaction failed on Midnight Testnet");
       }
 
       setDeploySuccess(true);
@@ -158,7 +158,7 @@ export default function RegulatorDashboard() {
       setTimeout(() => setDeploySuccess(false), 5000);
     } catch (err: any) {
       console.error(err);
-      alert(`Soroban Error: ${err.message}`);
+      alert(`Midnight Error: ${err.message}`);
     } finally {
       setIsDeploying(false);
     }
@@ -184,7 +184,7 @@ export default function RegulatorDashboard() {
             <span className="font-semibold text-sm">Total Escrowed</span>
           </div>
           <div className="text-4xl font-black text-white">
-            <AnimatedNumber value={totalEscrowed} suffix="XLM" />
+            <AnimatedNumber value={totalEscrowed} suffix="tDUST" />
           </div>
           <div className="text-slate-400 text-sm mt-2">{isDemoMode ? "Across 12 Active Bounties" : `Across ${bounties.length} Active Bounties`}</div>
         </motion.div>
@@ -220,7 +220,7 @@ export default function RegulatorDashboard() {
             </svg>
           </div>
           <div className="text-4xl font-black text-white">
-            <AnimatedNumber value={isDemoMode ? "2.1M" : contractBalance} suffix="XLM" />
+            <AnimatedNumber value={isDemoMode ? "2.1M" : contractBalance} suffix="tDUST" />
           </div>
           <div className="text-slate-400 text-sm mt-2">Available for Escrow</div>
         </motion.a>
@@ -245,7 +245,7 @@ export default function RegulatorDashboard() {
             </div>
             <div className="grid grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Escrow Amount (XLM)</label>
+                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Escrow Amount (tDUST)</label>
                 <input value={escrowAmount} onChange={(e) => setEscrowAmount(e.target.value)} required type="number" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none shadow-inner" placeholder="100,000" />
               </div>
               <div>
@@ -284,7 +284,7 @@ export default function RegulatorDashboard() {
           {!isDemoMode ? (
             <div className="flex-grow flex flex-col items-center justify-center opacity-50 space-y-4 py-8">
               <Loader2 className="w-10 h-10 text-cyan-neon animate-spin" />
-              <p className="text-sm font-bold text-slate-300">Fetching Soroban State...</p>
+              <p className="text-sm font-bold text-slate-300">Fetching Midnight State...</p>
               <p className="text-xs text-slate-500 text-center">No active bounties found on-chain</p>
             </div>
           ) : (
@@ -303,7 +303,7 @@ export default function RegulatorDashboard() {
                     <p className="text-xs text-slate-500 mt-1 font-mono">B-ID: {bounty.bid}...</p>
                   </div>
                   <div className="mt-3 flex justify-between items-end">
-                    <p className="text-sm font-black text-green-neon tracking-tight">{bounty.amount} XLM</p>
+                    <p className="text-sm font-black text-green-neon tracking-tight">{bounty.amount} tDUST</p>
                     <span className="px-2 py-1 bg-cyan-neon/10 text-cyan-neon text-[10px] uppercase font-bold rounded-md">Listening</span>
                   </div>
                 </motion.div>
@@ -332,7 +332,7 @@ export default function RegulatorDashboard() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h4 className="text-white font-bold">Review Needed: Entity #{id} Leak</h4>
-                      <p className="text-slate-400 text-sm mt-1">Escrow: <span className="text-green-neon">100,000 XLM</span></p>
+                      <p className="text-slate-400 text-sm mt-1">Escrow: <span className="text-green-neon">100,000 tDUST</span></p>
                     </div>
                     <div className="bg-yellow-500/20 text-yellow-500 text-xs font-bold px-3 py-1 rounded-full border border-yellow-500/50">
                       2/3 Approvals

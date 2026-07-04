@@ -22,7 +22,7 @@ export default function LandingPage() {
             </span>
           </h1>
           <p className="text-2xl text-slate-300 font-medium max-w-3xl mx-auto leading-relaxed">
-            Cryptographically Shielded Whistleblower Escrow on the Soroban Network.
+            Cryptographically Shielded Whistleblower Escrow on the Midnight Network.
           </p>
         </motion.div>
 
@@ -68,9 +68,9 @@ export default function LandingPage() {
         >
           <div className="absolute inset-0 bg-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <Terminal className="w-12 h-12 text-purple-400 mb-6" />
-          <h3 className="text-xl font-bold text-white mb-3">Soroban Smart Contracts</h3>
+          <h3 className="text-xl font-bold text-white mb-3">Midnight Smart Contracts</h3>
           <p className="text-slate-400 leading-relaxed">
-            Bounties are locked securely on the Stellar network. When a valid ZK-Proof is submitted, the Soroban contract automatically routes the payout.
+            Bounties are locked securely on the Midnight network. When a valid ZK-Proof is submitted, the Compact contract automatically routes the payout.
           </p>
         </motion.div>
 
@@ -116,7 +116,7 @@ export default function LandingPage() {
               <div className="w-12 h-12 bg-purple-500/10 rounded-2xl flex items-center justify-center font-black text-purple-400 mr-4 flex-shrink-0">2</div>
               <div>
                 <h4 className="text-white font-bold text-lg mb-2">Regulator Defines Escrow</h4>
-                <p className="text-slate-400">Regulators lock XLM bounties into a Soroban contract aimed at specific entities (like Enron Corp).</p>
+                <p className="text-slate-400">Regulators lock tDUST bounties into a Midnight Compact contract aimed at specific entities (like Enron Corp).</p>
               </div>
             </div>
             <div className="flex">
@@ -134,7 +134,7 @@ export default function LandingPage() {
             <p>2. <span className="text-cyan-neon">pureCircuits.verifyEmployee()</span> validates locally</p>
             <p>3. Circuit generates SNARK <span className="text-purple-400">Proof[A,B,C]</span></p>
             <p>4. IPFS Evidence is pinned</p>
-            <p>5. Soroban verifies ZK-SNARK & Arbiters</p>
+            <p>5. Midnight Compact verifies ZK Relayer & Arbiters</p>
             <p>6. <span className="text-cyan-neon">Payout =</span> SUCCESS</p>
           </div>
         </div>

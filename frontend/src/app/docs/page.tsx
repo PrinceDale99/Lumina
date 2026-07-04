@@ -32,7 +32,7 @@ export default function DocsPage() {
           System Architecture
         </h1>
         <p className="text-xl text-slate-400 leading-relaxed max-w-2xl">
-          Lumina is a decentralized, zero-knowledge financial escrow designed to protect whistleblowers. By combining Midnight Compact ZK-SNARKs with Stellar smart contracts (Soroban), we ensure that your identity remains cryptographically shielded from retaliation.
+          Lumina is a decentralized, zero-knowledge financial escrow designed to protect whistleblowers. By combining Midnight Compact ZK-SNARKs with Midnight smart contracts (Compact), we ensure that your identity remains cryptographically shielded from retaliation.
         </p>
       </motion.div>
 
