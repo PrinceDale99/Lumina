@@ -79,8 +79,8 @@ export default function RegulatorDashboard() {
         .build();
 
         const sim = await server.simulateTransaction(tx);
-        if (sim.result?.retval) {
-          const balBigInt = scValToNative(sim.result.retval);
+        if ((sim as any).result?.retval) {
+          const balBigInt = scValToNative((sim as any).result.retval);
           const xlmBal = Number(balBigInt) / 10000000;
           setContractBalance(xlmBal.toLocaleString(undefined, {maximumFractionDigits: 0}));
         }
