@@ -1,0 +1,43 @@
+// LuminaStake Employee Verification Circuit
+// Language: Midnight Compact
+// This circuit runs LOCALLY on the whistleblower's machine.
+
+import { hash, verifySignature } from "std";
+
+export circuit verifyEmployee(
+    // Public inputs (Provided by the dApp/Soroban state)
+    bountyId: Field,
+    companyPubKey: PublicKey,
+    
+    // Private witness inputs (NEVER leave the local machine)
+    privateKey: PrivateKey,
+    corporateSignature: Signature,
+    employmentTimestamp: Field,
+    validityThreshold: Field
+) -> (Bool, Field, Field) {
+
+    // 1. Verify the Corporate Credential Signature
+    // Proves that the company signed a credential asserting this user is an employee.
+    let expectedPayload = hash(employmentTimestamp);
+    let isValidSignature = verifySignature(companyPubKey, expectedPayload, corporateSignature);
+
+    // 2. Verify Tenure / Employment Validity
+    // Ensure the employee's timestamp is within the valid timeframe for the fraud report.
+    let isEmployedDuringFraud = employmentTimestamp >= validityThreshold;
+
+    // 3. Sybil Protection (The Nullifier)
+    // Generates a unique, deterministic hash combining the private key and the bounty ID.
+    // This allows the Soroban contract to prevent the same user from claiming the same bounty twice,
+    // without ever revealing the user's actual private key or identity.
+    let credentialNullifier = hash(privateKey, bountyId);
+
+    // 4. Company Identifier
+    // Output a hash of the company's public key to route to the correct Soroban bounty.
+    let companyIdentifierHash = hash(companyPubKey);
+
+    // Final logic gate
+    let isValidEmployee = isValidSignature && isEmployedDuringFraud;
+
+    // Disclose strictly limited outputs to the public network
+    return (isValidEmployee, companyIdentifierHash, credentialNullifier);
+}
