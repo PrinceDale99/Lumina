@@ -9,7 +9,7 @@ interface DemoModeContextType {
 const DemoModeContext = createContext<DemoModeContextType | undefined>(undefined);
 
 export function DemoModeProvider({ children }: { children: ReactNode }) {
-  const [isDemoMode, setIsDemoMode] = useState(true); // Default to Demo mode initially
+  const [isDemoMode, setIsDemoMode] = useState(false); // Default to Demo mode initially
 
   const toggleDemoMode = () => {
     setIsDemoMode((prev) => !prev);
