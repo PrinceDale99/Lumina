@@ -203,18 +203,28 @@ export default function RegulatorDashboard() {
           <div className="text-slate-400 text-sm mt-2">Zero-Knowledge Validated</div>
         </motion.div>
 
-        {/* Stat Box 3 */}
-        <motion.div variants={item} className="bg-surface border border-white/5 p-6 rounded-3xl relative overflow-hidden group hover:border-purple-500/30 transition-all duration-500">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl group-hover:bg-purple-500/10 transition-all duration-500" />
+        {/* Stat Box 3 (Clickable) */}
+        <motion.a 
+          href={`https://stellar.expert/explorer/testnet/contract/${CONTRACT_ID}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          variants={item} 
+          className="bg-surface border border-white/5 p-6 rounded-3xl relative overflow-hidden group hover:border-purple-500/50 transition-all duration-500 cursor-pointer block"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-500" />
           <div className="flex items-center space-x-2 text-purple-400 mb-4">
             <Activity className="w-5 h-5" />
             <span className="font-semibold text-sm">Contract Balance</span>
+            <div className="flex-grow" />
+            <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
           </div>
           <div className="text-4xl font-black text-white">
             <AnimatedNumber value={isDemoMode ? "2.1M" : contractBalance} suffix="XLM" />
           </div>
           <div className="text-slate-400 text-sm mt-2">Available for Escrow</div>
-        </motion.div>
+        </motion.a>
 
         {/* Form Box - Spans 2 columns */}
         <motion.div variants={item} className="md:col-span-2 bg-surface border border-white/5 p-8 rounded-3xl relative backdrop-blur-md">
