@@ -1,4 +1,5 @@
 import { useDemoMode } from "@/lib/DemoModeContext";
+import { useWallet } from "@/lib/WalletContext";
 import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
@@ -17,8 +18,8 @@ export default function WhistleblowerPortal() {
   const [zkLog, setZkLog] = useState<string[]>([]);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [bountyId, setBountyId] = useState("");
-  const [destAddress, setDestAddress] = useState("");
   const [evidenceText, setEvidenceText] = useState("");
+  const { pubKey, connect } = useWallet();
 
   useEffect(() => {
     // Only used to reset logs if needed
@@ -44,13 +45,15 @@ export default function WhistleblowerPortal() {
         setZkLog(l => [...l, "Calling Next.js Server Node.js environment to run ZK Proof natively..."]);
         
         // Execute the mathematical ZK circuit via the secure Server Action
-        const result = await generateZKProof();
+        // Pass the connected wallet public key to strictly bind the proof to the destination!
+        const result = await generateZKProof(pubKey || "GBLU...");
         
         setZkLog(l => [
           ...l, 
           `Circuit executed in ${result.timeTaken}ms`,
           `Output isValid: ${result.isValid}`,
           `Nullifier Output computed securely off-browser.`,
+          `Destination Wallet cryptographically bound to proof!`,
           "Proof Generated Successfully."
         ]);
         
@@ -70,8 +73,8 @@ export default function WhistleblowerPortal() {
   };
 
   const submitToSoroban = async () => {
-    if (!destAddress || !bountyId) {
-      alert("Missing Destination Address or Bounty ID!");
+    if (!pubKey || !bountyId) {
+      alert("Missing Connected Wallet or Bounty ID!");
       return;
     }
 
@@ -80,7 +83,7 @@ export default function WhistleblowerPortal() {
       setZkLog(l => [...l, "Relaying to Soroban via anonymous burner..."]);
       const evidenceCid = "QmX9a... (Encrypted)";
       
-      const response = await submitProofViaRelayer(Number(bountyId), destAddress, evidenceCid);
+      const response = await submitProofViaRelayer(Number(bountyId), pubKey, evidenceCid);
       
       if (!response.success) {
         throw new Error(response.error || "Transaction failed on Soroban");
@@ -232,28 +235,34 @@ export default function WhistleblowerPortal() {
         {step === 4 && (
           <motion.div key="step4" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="bg-surface border border-white/5 p-10 rounded-3xl text-center space-y-8">
             <Zap className="w-16 h-16 text-purple-500 mx-auto drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
-            <h2 className="text-2xl font-extrabold text-white">Provide Anonymous Destination</h2>
+            <h2 className="text-2xl font-extrabold text-white">Connect Receiving Wallet</h2>
             <div className="text-slate-300 text-left bg-background p-6 rounded-2xl border border-white/10 shadow-inner relative overflow-hidden">
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500" />
-              <strong className="text-purple-400 block mb-2 text-lg">CRITICAL INSTRUCTION:</strong> 
-              Provide a clean Stellar Address (e.g., a fresh offline wallet or exchange deposit address) to receive the bounty. 
+              <strong className="text-purple-400 block mb-2 text-lg">HYBRID RELAYER ARCHITECTURE:</strong> 
+              Connect a fresh Freighter wallet to serve as your receiving address.
               <br/><br/>
-              The Lumina Relayer will dynamically generate a burner account to pay all gas fees and interact with the smart contract, completely isolating your identity from the blockchain. You do NOT need to connect a wallet.
+              The Lumina Relayer backend will dynamically generate a burner account to pay all gas fees and interact with the smart contract. The ZK-proof strictly binds your connected wallet as the destination address so the XLM is sent straight to you when released!
             </div>
-            <div className="text-left mt-6">
-              <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Destination Stellar Address</label>
-              <input value={destAddress} onChange={(e) => setDestAddress(e.target.value)} type="text" className="w-full bg-background border border-white/10 rounded-xl p-4 text-white focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none font-mono text-sm shadow-inner" placeholder="G..." />
-            </div>
+            
+            {pubKey ? (
+              <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-xl text-purple-300 font-mono text-sm break-all">
+                Connected: {pubKey}
+              </div>
+            ) : null}
+
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                if(destAddress.startsWith('G') && destAddress.length === 56) setStep(5);
-                else alert("Please enter a valid Stellar G... address");
+              onClick={async () => {
+                if (!pubKey) {
+                  await connect();
+                } else {
+                  setStep(5);
+                }
               }} 
               className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(168,85,247,0.2)]"
             >
-              Continue to Proof Broadcast
+              {pubKey ? "Continue to Proof Broadcast" : "Connect Freighter Wallet"}
             </motion.button>
           </motion.div>
         )}

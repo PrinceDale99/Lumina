@@ -7,9 +7,12 @@ export circuit verifyEmployee(
     privateKey: Bytes<32>,
     corporateSignature: Bytes<64>,
     employmentTimestamp: Uint<32>,
-    validityThreshold: Uint<32>
-): [Boolean, Bytes<32>, Bytes<32>] {
+    validityThreshold: Uint<32>,
+    destinationWallet: Bytes<32>
+): [Boolean, Bytes<32>, Bytes<32>, Bytes<32>] {
     
-    // Output the proof boolean, the company pub key, and the bounty ID (simulated nullifier)
-    return [employmentTimestamp >= validityThreshold, companyPubKey, bountyId];
+    // The return array acts as the 'disclose()' function in Compact.
+    // It emits these values to the public ledger as the Public State.
+    // This mathematically binds the ZK-proof to the whistleblower's specific destination wallet!
+    return [employmentTimestamp >= validityThreshold, companyPubKey, bountyId, destinationWallet];
 }

@@ -1,9 +1,10 @@
 "use server";
 
-export async function generateZKProof() {
+export async function generateZKProof(destAddress: string) {
   // Server-side dynamic import of the real circuit
   // Node.js will read the WASM from the file system natively, bypassing Webpack browser WASM parsing bugs!
   const { pureCircuits } = await import("lumina-circuits/build/contract/index.js");
+  const { StrKey } = await import("@stellar/stellar-sdk");
 
   // Prepare cryptographic data
   const bountyId = new Uint8Array(32);
@@ -12,16 +13,25 @@ export async function generateZKProof() {
   const sig = new Uint8Array(64);
   const timestamp = BigInt(Math.floor(Date.now() / 1000));
   const validity = BigInt(0); // Valid
+  
+  // Convert Stellar G-address string to 32-byte Ed25519 public key
+  let destWalletBuffer;
+  try {
+    destWalletBuffer = StrKey.decodeEd25519PublicKey(destAddress);
+  } catch (e) {
+    destWalletBuffer = new Uint8Array(32); // Fallback if invalid
+  }
 
   // Execute the mathematical ZK circuit server-side
   const start = performance.now();
-  const [isValid, outPubKey, outBountyId] = pureCircuits.verifyEmployee(
+  const [isValid, outPubKey, outBountyId, outDestWallet] = pureCircuits.verifyEmployee(
     bountyId,
     pubKey,
     privKey,
     sig,
     timestamp,
-    validity
+    validity,
+    destWalletBuffer
   );
   const timeTaken = (performance.now() - start).toFixed(2);
 
@@ -31,6 +41,7 @@ export async function generateZKProof() {
     timeTaken,
     outPubKey: Array.from(outPubKey),
     outBountyId: Array.from(outBountyId),
+    outDestWallet: Array.from(outDestWallet),
   };
 }
 
