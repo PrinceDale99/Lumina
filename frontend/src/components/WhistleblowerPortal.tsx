@@ -77,7 +77,7 @@ export default function WhistleblowerPortal() {
           <p className="text-slate-400 text-sm text-left bg-slate-900 p-4 rounded-lg border border-slate-800">
             <strong>CRITICAL:</strong> Please open Freighter and create a brand new, clean wallet with ZERO transaction history. 
             <br/><br/>
-            LuminaStake uses Soroban CAP-0071 to route the bounty to this clean wallet through a transient account, breaking the deterministic chain trace. You do not need XLM for trustlines.
+            Lumina uses Soroban CAP-0071 to route the bounty to this clean wallet through a transient account, breaking the deterministic chain trace. You do not need XLM for trustlines.
           </p>
           <button onClick={() => setStep(5)} className="bg-slate-700 hover:bg-slate-600 text-white border border-slate-500 font-semibold py-3 px-6 rounded-lg transition-colors w-full">
             I have connected a clean Freighter Wallet

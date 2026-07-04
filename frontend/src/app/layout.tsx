@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "LuminaStake | Confidential Escrow",
+  title: "Lumina | Confidential Escrow",
   description: "Zero-Knowledge Whistleblower Escrow on Stellar",
 };
 
@@ -24,7 +24,7 @@ export default function RootLayout({
                 <div className="w-8 h-8 bg-green-neon rounded-full flex items-center justify-center opacity-80 animate-pulse">
                   <span className="text-slate-900 font-bold">L</span>
                 </div>
-                <span className="font-bold text-xl tracking-tight">LuminaStake</span>
+                <span className="font-bold text-xl tracking-tight">Lumina</span>
               </div>
               <div className="flex items-center space-x-4">
                 <span className="flex items-center text-xs font-medium bg-slate-700 px-2 py-1 rounded-full text-slate-300">

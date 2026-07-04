@@ -8,8 +8,8 @@ fn test_initialization() {
     let env = Env::default();
     let admin = Address::generate(&env);
     
-    let contract_id = env.register_contract(None, LuminaStakeContract);
-    let client = LuminaStakeContractClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, LuminaContract);
+    let client = LuminaContractClient::new(&env, &contract_id);
     
     client.init(&admin);
 }
@@ -18,8 +18,8 @@ fn test_initialization() {
 fn test_bounty_creation_and_evidence() {
     let env = Env::default();
     let admin = Address::generate(&env);
-    let contract_id = env.register_contract(None, LuminaStakeContract);
-    let client = LuminaStakeContractClient::new(&env, &contract_id);
+    let contract_id = env.register_contract(None, LuminaContract);
+    let client = LuminaContractClient::new(&env, &contract_id);
     
     client.init(&admin);
     
