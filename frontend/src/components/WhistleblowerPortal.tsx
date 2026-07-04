@@ -311,7 +311,7 @@ export default function WhistleblowerPortal() {
               The escrow will be released to your anonymous wallet once arbiters approve the evidence.
             </p>
             <div className="bg-black/30 p-4 rounded-xl border border-white/5 font-mono text-sm text-green-neon/70 mt-4 break-all text-left">
-              TxHash: <a href={`https://testnet.explorer.midnight.network/transaction/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
+              TxHash: <a href={`https://midnightexplorer.io/transaction/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
               Network: Midnight Testnet
             </div>
             <button 

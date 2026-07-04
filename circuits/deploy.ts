@@ -30,7 +30,7 @@ async function deployMidnightContract() {
   console.log("\n✅ Deployment Successful!");
   console.log("Contract Address:", mockAddress);
   console.log("Network: Midnight Testnet");
-  console.log(`Explorer Link: https://testnet.explorer.midnight.network/contract/${mockAddress}`);
+  console.log(`Explorer Link: https://midnightexplorer.io/contract/${mockAddress}`);
 }
 
 deployMidnightContract().catch(console.error);
