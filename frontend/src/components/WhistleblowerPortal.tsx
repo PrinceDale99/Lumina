@@ -2,14 +2,7 @@ import { useDemoMode } from "@/lib/DemoModeContext";
 import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { generateZKProof } from "@/app/actions";
-import { useWallet } from "@/lib/WalletContext";
-import { rpc, Contract, nativeToScVal, TransactionBuilder, Networks, Address } from "@stellar/stellar-sdk";
-import { signTransaction } from "@stellar/freighter-api";
-
-const SOROBAN_RPC = "https://soroban-testnet.stellar.org";
-const CONTRACT_ID = "CAR453YPMSCZQ2QURK4IKUACEAPVWUU2TZX2UBPT7SOLC6PYRQJMNG6H";
-const server = new rpc.Server(SOROBAN_RPC);
+import { generateZKProof, submitProofViaRelayer } from "@/app/actions";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
@@ -23,7 +16,9 @@ export default function WhistleblowerPortal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [zkLog, setZkLog] = useState<string[]>([]);
   const [txHash, setTxHash] = useState<string | null>(null);
-  const { pubKey, connect } = useWallet();
+  const [bountyId, setBountyId] = useState("");
+  const [destAddress, setDestAddress] = useState("");
+  const [evidenceText, setEvidenceText] = useState("");
 
   useEffect(() => {
     // Only used to reset logs if needed
@@ -75,54 +70,27 @@ export default function WhistleblowerPortal() {
   };
 
   const submitToSoroban = async () => {
-    if (!pubKey) {
-      alert("Please connect your clean Freighter wallet first!");
-      await connect();
+    if (!destAddress || !bountyId) {
+      alert("Missing Destination Address or Bounty ID!");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // 1. Fetch source account from Soroban
-      const sourceAccount = await server.getAccount(pubKey);
-      
-      // 2. Build the contract call payload
-      const contract = new Contract(CONTRACT_ID);
-      const bountyId = 1; // Example hardcoded active bounty ID 1
+      setZkLog(l => [...l, "Relaying to Soroban via anonymous burner..."]);
       const evidenceCid = "QmX9a... (Encrypted)";
       
-      const tx = new TransactionBuilder(sourceAccount, {
-        fee: "100000",
-        networkPassphrase: Networks.TESTNET,
-      })
-      .addOperation(contract.call(
-        "submit_proof",
-        nativeToScVal(bountyId, { type: 'u32' }),
-        new Address(pubKey).toScVal(),
-        nativeToScVal(evidenceCid, { type: 'string' })
-      ))
-      .setTimeout(30)
-      .build();
-
-      // 3. Prepare the transaction for Soroban
-      const preparedTx = await server.prepareTransaction(tx);
-
-      // 4. Request user signature via Freighter wallet extension
-      const { signedTxXdr } = await signTransaction(preparedTx.toXDR(), { networkPassphrase: "Test SDF Network ; September 2015" });
-      const signedTx = TransactionBuilder.fromXDR(signedTxXdr, Networks.TESTNET) as any;
-
-      // 5. Submit to the Stellar Testnet
-      const response = await server.sendTransaction(signedTx);
+      const response = await submitProofViaRelayer(Number(bountyId), destAddress, evidenceCid);
       
-      if (response.status === "ERROR") {
-        throw new Error("Transaction failed on Soroban");
+      if (!response.success) {
+        throw new Error(response.error || "Transaction failed on Soroban");
       }
 
-      setTxHash(response.hash);
+      setTxHash(response.txHash);
       setStep(6);
     } catch (err: any) {
       console.error(err);
-      alert(`Soroban Error: ${err.message}`);
+      alert(`Relayer Error: ${err.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -233,7 +201,16 @@ export default function WhistleblowerPortal() {
             <p className="text-slate-400 text-base mb-4">
               Provide the evidence of fraud. This will be AES-encrypted locally with the Regulator's public key before being pinned to IPFS.
             </p>
-            <textarea className="w-full bg-background border border-white/10 rounded-2xl p-5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 h-40 outline-none shadow-inner resize-none transition-all" placeholder="Paste cryptographic logs, chat exports, or descriptions..." />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider text-left">Target Bounty ID</label>
+                <input value={bountyId} onChange={(e) => setBountyId(e.target.value)} type="number" className="w-full bg-background border border-white/10 rounded-2xl p-4 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none shadow-inner" placeholder="e.g. 104291" />
+              </div>
+              <div className="flex flex-col justify-end">
+                <p className="text-xs text-slate-500 text-left mb-2">Provide the exact Bounty ID from the Regulator Dashboard to ensure evidence routes correctly.</p>
+              </div>
+            </div>
+            <textarea value={evidenceText} onChange={(e) => setEvidenceText(e.target.value)} className="w-full bg-background border border-white/10 rounded-2xl p-5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 h-40 outline-none shadow-inner resize-none transition-all" placeholder="Paste cryptographic logs, chat exports, or descriptions..." />
             
             <motion.button 
               whileHover={!isEncrypting ? { scale: 1.02 } : {}}
@@ -255,21 +232,28 @@ export default function WhistleblowerPortal() {
         {step === 4 && (
           <motion.div key="step4" variants={fadeUp} initial="hidden" animate="visible" exit="exit" className="bg-surface border border-white/5 p-10 rounded-3xl text-center space-y-8">
             <Zap className="w-16 h-16 text-purple-500 mx-auto drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
-            <h2 className="text-2xl font-extrabold text-white">Generate Anonymous Wallet</h2>
+            <h2 className="text-2xl font-extrabold text-white">Provide Anonymous Destination</h2>
             <div className="text-slate-300 text-left bg-background p-6 rounded-2xl border border-white/10 shadow-inner relative overflow-hidden">
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500" />
               <strong className="text-purple-400 block mb-2 text-lg">CRITICAL INSTRUCTION:</strong> 
-              Please open Freighter and create a brand new, clean wallet with ZERO transaction history. 
+              Provide a clean Stellar Address (e.g., a fresh offline wallet or exchange deposit address) to receive the bounty. 
               <br/><br/>
-              Lumina uses Soroban CAP-0071 to route the bounty to this clean wallet through a transient account, breaking the deterministic chain trace. You do not need XLM for trustlines.
+              The Lumina Relayer will dynamically generate a burner account to pay all gas fees and interact with the smart contract, completely isolating your identity from the blockchain. You do NOT need to connect a wallet.
+            </div>
+            <div className="text-left mt-6">
+              <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Destination Stellar Address</label>
+              <input value={destAddress} onChange={(e) => setDestAddress(e.target.value)} type="text" className="w-full bg-background border border-white/10 rounded-xl p-4 text-white focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 outline-none font-mono text-sm shadow-inner" placeholder="G..." />
             </div>
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setStep(5)} 
+              onClick={() => {
+                if(destAddress.startsWith('G') && destAddress.length === 56) setStep(5);
+                else alert("Please enter a valid Stellar G... address");
+              }} 
               className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(168,85,247,0.2)]"
             >
-              I have connected a clean Freighter Wallet
+              Continue to Proof Broadcast
             </motion.button>
           </motion.div>
         )}
