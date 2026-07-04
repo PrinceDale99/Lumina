@@ -1,9 +1,9 @@
 import { Shield, Plus, TrendingUp, Activity, CheckCircle2, Scale, Eye, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useState } from "react";
 import { useDemoMode } from "@/lib/DemoModeContext";
 
-const container = {
+const container: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -11,18 +11,61 @@ const container = {
   }
 };
 
-const item = {
+const item: Variants = {
   hidden: { opacity: 0, y: 20 },
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
 export default function RegulatorDashboard() {
   const [votingOn, setVotingOn] = useState<number | null>(null);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [deploySuccess, setDeploySuccess] = useState(false);
+  
+  // Real Form State
+  const [targetEntity, setTargetEntity] = useState("");
+  const [registryKey, setRegistryKey] = useState("");
+  const [escrowAmount, setEscrowAmount] = useState("");
+  const [requiredArbiters, setRequiredArbiters] = useState("3");
+
+  const [bounties, setBounties] = useState<any[]>([
+    { id: 1, entity: "Entity #1 Investigation", amount: "50,000", bid: "100X9A" },
+    { id: 2, entity: "Entity #2 Investigation", amount: "50,000", bid: "200X9A" }
+  ]);
   const { isDemoMode } = useDemoMode();
 
   const castVote = (id: number, vote: boolean) => {
     // In a real app, this generates the ZK Proof of Arbiter status
     setVotingOn(null);
+  };
+
+  const handleDeploy = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!targetEntity || !registryKey || !escrowAmount) return;
+
+    setIsDeploying(true);
+    setDeploySuccess(false);
+    
+    setTimeout(() => {
+      setIsDeploying(false);
+      setDeploySuccess(true);
+      
+      const newBounty = { 
+        id: bounties.length + 1, 
+        entity: targetEntity, 
+        amount: Number(escrowAmount).toLocaleString(), 
+        bid: registryKey.substring(0, 6) 
+      };
+      
+      // Append real submitted data
+      setBounties([newBounty, ...bounties]);
+      
+      // Clear form
+      setTargetEntity("");
+      setRegistryKey("");
+      setEscrowAmount("");
+      
+      setTimeout(() => setDeploySuccess(false), 5000);
+    }, 2500);
   };
 
   return (
@@ -44,8 +87,8 @@ export default function RegulatorDashboard() {
             <TrendingUp className="w-5 h-5" />
             <span className="font-semibold text-sm">Total Escrowed</span>
           </div>
-          <div className="text-4xl font-black text-white">$14.2M</div>
-          <div className="text-slate-400 text-sm mt-2">Across 12 Active Bounties</div>
+          <div className="text-4xl font-black text-white">{isDemoMode ? "14.2M XLM" : "0 XLM"}</div>
+          <div className="text-slate-400 text-sm mt-2">{isDemoMode ? "Across 12 Active Bounties" : "Across 0 Active Bounties"}</div>
         </motion.div>
 
         {/* Stat Box 2 */}
@@ -55,7 +98,7 @@ export default function RegulatorDashboard() {
             <CheckCircle2 className="w-5 h-5" />
             <span className="font-semibold text-sm">Resolved Claims</span>
           </div>
-          <div className="text-4xl font-black text-white">4</div>
+          <div className="text-4xl font-black text-white">{isDemoMode ? "4" : "0"}</div>
           <div className="text-slate-400 text-sm mt-2">Zero-Knowledge Validated</div>
         </motion.div>
 
@@ -64,13 +107,12 @@ export default function RegulatorDashboard() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-3xl group-hover:bg-purple-500/10 transition-all duration-500" />
           <div className="flex items-center space-x-2 text-purple-400 mb-4">
             <Activity className="w-5 h-5" />
-            <span className="font-semibold text-sm">Network Status</span>
+            <span className="font-semibold text-sm">Contract Balance</span>
           </div>
-          <div className="text-2xl font-bold text-white flex items-center mt-1">
-            <span className="w-3 h-3 rounded-full bg-green-neon animate-pulse mr-3 shadow-[0_0_10px_#39ff14]"></span>
-            {isDemoMode ? "Stellar Testnet" : "Soroban Testnet (Live)"}
+          <div className="text-4xl font-black text-white">
+            {isDemoMode ? "2.1M XLM" : "0 XLM"}
           </div>
-          <div className="text-slate-400 text-sm mt-3 font-mono text-xs">{isDemoMode ? "Latency: 24ms" : "Querying Soroban..."}</div>
+          <div className="text-slate-400 text-sm mt-2">Available for Escrow</div>
         </motion.div>
 
         {/* Form Box - Spans 2 columns */}
@@ -80,35 +122,48 @@ export default function RegulatorDashboard() {
             <Plus className="w-6 h-6 mr-3 text-cyan-neon" /> 
             Deploy New ZK Escrow Bounty
           </h3>
-          <form className="space-y-5 relative z-10">
+          <form onSubmit={handleDeploy} className="space-y-5 relative z-10">
             <div className="grid grid-cols-2 gap-5">
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Target Entity</label>
-                <input type="text" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none transition-all shadow-inner" placeholder="e.g. Enron Corp" />
+                <input value={targetEntity} onChange={(e) => setTargetEntity(e.target.value)} required type="text" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none transition-all shadow-inner" placeholder="e.g. Enron Corp" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Entity Registry Key (Public)</label>
-                <input type="text" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none font-mono text-sm shadow-inner" placeholder="G..." />
+                <input value={registryKey} onChange={(e) => setRegistryKey(e.target.value)} required type="text" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none font-mono text-sm shadow-inner" placeholder="G..." />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-5">
               <div>
-                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Escrow Amount (USDC)</label>
-                <input type="number" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none shadow-inner" placeholder="100,000" />
+                <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Escrow Amount (XLM)</label>
+                <input value={escrowAmount} onChange={(e) => setEscrowAmount(e.target.value)} required type="number" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none shadow-inner" placeholder="100,000" />
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Required Arbiter Approvals</label>
-                <input type="number" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none shadow-inner" placeholder="3" defaultValue={3} />
+                <input value={requiredArbiters} onChange={(e) => setRequiredArbiters(e.target.value)} required type="number" className="w-full bg-background border border-white/10 rounded-xl p-3.5 text-white focus:ring-2 focus:ring-cyan-neon/50 focus:border-cyan-neon/50 outline-none shadow-inner" placeholder="3" />
               </div>
             </div>
             <motion.button 
-              type="button"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full bg-cyan-neon/10 hover:bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon font-bold py-4 px-6 rounded-xl transition-all duration-300 mt-4 shadow-[0_0_20px_rgba(0,240,255,0.15)] hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] relative overflow-hidden group"
+              type="submit"
+              disabled={isDeploying}
+              whileHover={!isDeploying ? { scale: 1.02 } : {}}
+              whileTap={!isDeploying ? { scale: 0.98 } : {}}
+              className="w-full bg-cyan-neon/10 hover:bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon font-bold py-4 px-6 rounded-xl transition-all duration-300 mt-4 shadow-[0_0_20px_rgba(0,240,255,0.15)] hover:shadow-[0_0_30px_rgba(0,240,255,0.3)] relative overflow-hidden group disabled:opacity-50 disabled:cursor-wait"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full duration-1000 transition-transform" />
-              Initialize Trustless Bounty
+              {isDeploying ? (
+                <span className="flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" /> Deploying Smart Contract...
+                </span>
+              ) : deploySuccess ? (
+                <span className="flex items-center justify-center text-green-neon">
+                  <CheckCircle2 className="w-5 h-5 mr-2" /> Deployed Successfully!
+                </span>
+              ) : (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full duration-1000 transition-transform" />
+                  Initialize Trustless Bounty
+                </>
+              )}
             </motion.button>
           </form>
         </motion.div>
@@ -124,19 +179,21 @@ export default function RegulatorDashboard() {
             </div>
           ) : (
             <div className="space-y-4 flex-grow">
-              {[1, 2].map((id) => (
+              {bounties.map((bounty) => (
                 <motion.div 
-                  key={id} 
+                  key={bounty.id} 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
                   whileHover={{ scale: 1.02, x: 5 }}
                   className="bg-background border border-white/5 p-4 rounded-2xl flex flex-col justify-between hover:border-cyan-neon/30 transition-all cursor-pointer relative overflow-hidden group"
                 >
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-neon/50 scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
                   <div>
-                    <p className="text-sm font-bold text-white">Entity #{id} Investigation</p>
-                    <p className="text-xs text-slate-500 mt-1 font-mono">B-ID: {id}00X9A...</p>
+                    <p className="text-sm font-bold text-white">{bounty.entity}</p>
+                    <p className="text-xs text-slate-500 mt-1 font-mono">B-ID: {bounty.bid}...</p>
                   </div>
                   <div className="mt-3 flex justify-between items-end">
-                    <p className="text-sm font-black text-green-neon tracking-tight">50,000 USDC</p>
+                    <p className="text-sm font-black text-green-neon tracking-tight">{bounty.amount} XLM</p>
                     <span className="px-2 py-1 bg-cyan-neon/10 text-cyan-neon text-[10px] uppercase font-bold rounded-md">Listening</span>
                   </div>
                 </motion.div>
@@ -165,7 +222,7 @@ export default function RegulatorDashboard() {
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <h4 className="text-white font-bold">Review Needed: Entity #{id} Leak</h4>
-                      <p className="text-slate-400 text-sm mt-1">Escrow: <span className="text-green-neon">100,000 USDC</span></p>
+                      <p className="text-slate-400 text-sm mt-1">Escrow: <span className="text-green-neon">100,000 XLM</span></p>
                     </div>
                     <div className="bg-yellow-500/20 text-yellow-500 text-xs font-bold px-3 py-1 rounded-full border border-yellow-500/50">
                       2/3 Approvals

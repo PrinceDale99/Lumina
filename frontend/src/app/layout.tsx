@@ -4,6 +4,7 @@ import Link from "next/link";
 import WalletConnect from "@/components/WalletConnect";
 import DemoToggle from "@/components/DemoToggle";
 import { DemoModeProvider } from "@/lib/DemoModeContext";
+import { WalletProvider } from "@/lib/WalletContext";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} bg-background text-slate-200 min-h-screen flex flex-col relative overflow-x-hidden`} suppressHydrationWarning>
+        <WalletProvider>
         <DemoModeProvider>
           {/* Premium subtle grid background */}
           <div className="fixed inset-0 z-[-1] bg-background">
@@ -57,6 +59,7 @@ export default function RootLayout({
           {children}
         </main>
         </DemoModeProvider>
+        </WalletProvider>
       </body>
     </html>
   );

@@ -3,10 +3,21 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RegulatorDashboard from "@/components/RegulatorDashboard";
 import WhistleblowerPortal from "@/components/WhistleblowerPortal";
+import LandingPage from "@/components/LandingPage";
+import { useWallet } from "@/lib/WalletContext";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [view, setView] = useState<"regulator" | "whistleblower">("whistleblower");
+  const { pubKey } = useWallet();
+
+  if (!pubKey) {
+    return (
+      <div className="flex-grow flex flex-col pt-24 pb-12">
+        <LandingPage />
+      </div>
+    );
+  }
 
   return (
     <motion.div 

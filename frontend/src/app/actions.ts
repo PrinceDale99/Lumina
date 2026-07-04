@@ -10,7 +10,7 @@ export async function generateZKProof() {
   const pubKey = new Uint8Array(32);
   const privKey = new Uint8Array(32);
   const sig = new Uint8Array(64);
-  const timestamp = BigInt(Date.now());
+  const timestamp = BigInt(Math.floor(Date.now() / 1000));
   const validity = BigInt(0); // Valid
 
   // Execute the mathematical ZK circuit server-side

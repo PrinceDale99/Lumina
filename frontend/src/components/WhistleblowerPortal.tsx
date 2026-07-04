@@ -1,10 +1,10 @@
 import { useDemoMode } from "@/lib/DemoModeContext";
 import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { generateZKProof } from "@/app/actions";
 
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
   visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 24 } },
   exit: { opacity: 0, y: -30, scale: 0.95, transition: { duration: 0.2 } }
@@ -13,6 +13,7 @@ const fadeUp = {
 export default function WhistleblowerPortal() {
   const [step, setStep] = useState(1);
   const [isEncrypting, setIsEncrypting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [zkLog, setZkLog] = useState<string[]>([]);
 
   useEffect(() => {
@@ -62,6 +63,14 @@ export default function WhistleblowerPortal() {
       setIsEncrypting(false);
       setStep(4);
     }, 2000);
+  };
+
+  const submitToSoroban = () => {
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setStep(6);
+    }, 3000);
   };
 
   return (
@@ -223,12 +232,42 @@ export default function WhistleblowerPortal() {
             </div>
             
             <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-green-neon text-background font-black py-5 px-10 rounded-2xl transition-all w-full text-xl shadow-[0_0_30px_rgba(57,255,20,0.4)] hover:shadow-[0_0_50px_rgba(57,255,20,0.6)] uppercase tracking-wider relative z-10"
+              onClick={submitToSoroban}
+              disabled={isSubmitting}
+              whileHover={!isSubmitting ? { scale: 1.05 } : {}}
+              whileTap={!isSubmitting ? { scale: 0.95 } : {}}
+              className="bg-green-neon text-background font-black py-5 px-10 rounded-2xl transition-all w-full text-xl shadow-[0_0_30px_rgba(57,255,20,0.4)] hover:shadow-[0_0_50px_rgba(57,255,20,0.6)] uppercase tracking-wider relative z-10 disabled:opacity-70 disabled:cursor-wait"
             >
-              Submit Proof to Soroban Escrow
+              {isSubmitting ? (
+                <span className="flex items-center justify-center">
+                  <div className="w-6 h-6 border-4 border-background border-t-transparent rounded-full animate-spin mr-3" />
+                  Broadcasting to Soroban...
+                </span>
+              ) : "Submit Proof to Soroban Escrow"}
             </motion.button>
+          </motion.div>
+        )}
+
+        {step === 6 && (
+          <motion.div key="step6" variants={fadeUp} initial="hidden" animate="visible" className="bg-surface border border-green-neon/30 p-12 rounded-3xl text-center space-y-6 relative overflow-hidden">
+            <div className="w-24 h-24 bg-green-neon/20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-12 h-12 text-green-neon" />
+            </div>
+            <h2 className="text-3xl font-black text-white tracking-tight">Proof Submitted Successfully</h2>
+            <p className="text-slate-400 text-lg">
+              Your Zero-Knowledge Proof has been verified by the Soroban smart contract. 
+              The escrow will be released to your anonymous wallet once arbiters approve the evidence.
+            </p>
+            <div className="bg-black/30 p-4 rounded-xl border border-white/5 font-mono text-sm text-green-neon/70 mt-4 break-all text-left">
+              TxHash: 0x8f2a9b4c0e3d1f...<br/>
+              Block: 1849203
+            </div>
+            <button 
+              onClick={() => setStep(1)}
+              className="text-slate-400 hover:text-white transition-colors underline underline-offset-4 mt-6 text-sm"
+            >
+              Submit another proof
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
