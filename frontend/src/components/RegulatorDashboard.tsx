@@ -23,6 +23,24 @@ const item: Variants = {
   show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
+const AnimatedNumber = ({ value, suffix = "" }: { value: string | number, suffix?: string }) => (
+  <div className="relative inline-block">
+    <AnimatePresence mode="popLayout">
+      <motion.span
+        key={String(value)}
+        initial={{ y: 20, opacity: 0, filter: "blur(4px)" }}
+        animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+        exit={{ y: -20, opacity: 0, filter: "blur(4px)", position: "absolute", left: 0 }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        className="inline-block"
+      >
+        {value}
+      </motion.span>
+    </AnimatePresence>
+    {suffix && <span className="ml-2 inline-block">{suffix}</span>}
+  </div>
+);
+
 export default function RegulatorDashboard() {
   const [votingOn, setVotingOn] = useState<number | null>(null);
   const [isDeploying, setIsDeploying] = useState(false);
@@ -41,6 +59,9 @@ export default function RegulatorDashboard() {
   const { isDemoMode } = useDemoMode();
   const { pubKey, connect } = useWallet();
   const [contractBalance, setContractBalance] = useState("0");
+
+  const totalEscrowed = isDemoMode ? "14.2M" : bounties.reduce((sum, b) => sum + parseInt(b.amount.replace(/,/g, '') || "0"), 0).toLocaleString();
+  const resolvedClaims = isDemoMode ? "4" : "0";
 
   useEffect(() => {
     if (isDemoMode) return;
@@ -177,8 +198,10 @@ export default function RegulatorDashboard() {
             <TrendingUp className="w-5 h-5" />
             <span className="font-semibold text-sm">Total Escrowed</span>
           </div>
-          <div className="text-4xl font-black text-white">{isDemoMode ? "14.2M XLM" : "0 XLM"}</div>
-          <div className="text-slate-400 text-sm mt-2">{isDemoMode ? "Across 12 Active Bounties" : "Across 0 Active Bounties"}</div>
+          <div className="text-4xl font-black text-white">
+            <AnimatedNumber value={totalEscrowed} suffix="XLM" />
+          </div>
+          <div className="text-slate-400 text-sm mt-2">{isDemoMode ? "Across 12 Active Bounties" : `Across ${bounties.length} Active Bounties`}</div>
         </motion.div>
 
         {/* Stat Box 2 */}
@@ -188,7 +211,9 @@ export default function RegulatorDashboard() {
             <CheckCircle2 className="w-5 h-5" />
             <span className="font-semibold text-sm">Resolved Claims</span>
           </div>
-          <div className="text-4xl font-black text-white">{isDemoMode ? "4" : "0"}</div>
+          <div className="text-4xl font-black text-white">
+            <AnimatedNumber value={resolvedClaims} />
+          </div>
           <div className="text-slate-400 text-sm mt-2">Zero-Knowledge Validated</div>
         </motion.div>
 
@@ -200,7 +225,7 @@ export default function RegulatorDashboard() {
             <span className="font-semibold text-sm">Contract Balance</span>
           </div>
           <div className="text-4xl font-black text-white">
-            {isDemoMode ? "2.1M XLM" : `${contractBalance} XLM`}
+            <AnimatedNumber value={isDemoMode ? "2.1M" : contractBalance} suffix="XLM" />
           </div>
           <div className="text-slate-400 text-sm mt-2">Available for Escrow</div>
         </motion.div>
