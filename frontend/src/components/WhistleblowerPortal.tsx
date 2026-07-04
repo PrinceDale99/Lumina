@@ -3,7 +3,7 @@ import { useWallet } from "@/lib/WalletContext";
 import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { generateZKProof, submitProofViaRelayer } from "@/app/actions";
+import { generateZKProof, submitProofViaRelayer, submitProofViaCardanoRelayer } from "@/app/actions";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
@@ -19,7 +19,8 @@ export default function WhistleblowerPortal() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [bountyId, setBountyId] = useState("");
   const [evidenceText, setEvidenceText] = useState("");
-  const { pubKey, connect } = useWallet();
+  const [submissionNetwork, setSubmissionNetwork] = useState<string>("Soroban Testnet");
+  const { pubKey, walletType, connect } = useWallet();
 
   useEffect(() => {
     // Only used to reset logs if needed
@@ -80,13 +81,20 @@ export default function WhistleblowerPortal() {
 
     setIsSubmitting(true);
     try {
-      setZkLog(l => [...l, "Relaying to Soroban via anonymous burner..."]);
+      setZkLog(l => [...l, `Relaying to ${walletType === 'lace' ? 'Cardano Preprod' : 'Soroban'} via anonymous burner...`]);
       const evidenceCid = "QmX9a... (Encrypted)";
       
-      const response = await submitProofViaRelayer(Number(bountyId), pubKey, evidenceCid);
+      let response;
+      if (walletType === 'lace') {
+        response = await submitProofViaCardanoRelayer(Number(bountyId), pubKey, evidenceCid);
+        setSubmissionNetwork(response.network || "Cardano Preprod");
+      } else {
+        response = await submitProofViaRelayer(Number(bountyId), pubKey, evidenceCid);
+        setSubmissionNetwork("Soroban Testnet");
+      }
       
       if (!response.success) {
-        throw new Error(response.error || "Transaction failed on Soroban");
+        throw new Error(response.error || `Transaction failed on ${walletType === 'lace' ? 'Cardano' : 'Soroban'}`);
       }
 
       setTxHash(response.txHash);
@@ -305,9 +313,9 @@ export default function WhistleblowerPortal() {
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
                   <div className="w-6 h-6 border-4 border-background border-t-transparent rounded-full animate-spin mr-3" />
-                  Broadcasting to Soroban...
+                  Broadcasting to {walletType === 'lace' ? 'Cardano...' : 'Soroban...'}
                 </span>
-              ) : "Submit Proof to Soroban Escrow"}
+              ) : `Submit Proof to ${walletType === 'lace' ? 'Cardano Preprod' : 'Soroban'} Escrow`}
             </motion.button>
           </motion.div>
         )}
@@ -319,12 +327,12 @@ export default function WhistleblowerPortal() {
             </div>
             <h2 className="text-3xl font-black text-white tracking-tight">Proof Submitted Successfully</h2>
             <p className="text-slate-400 text-lg">
-              Your Zero-Knowledge Proof has been verified by the Soroban smart contract. 
+              Your Zero-Knowledge Proof has been verified by the {submissionNetwork} smart contract. 
               The escrow will be released to your anonymous wallet once arbiters approve the evidence.
             </p>
             <div className="bg-black/30 p-4 rounded-xl border border-white/5 font-mono text-sm text-green-neon/70 mt-4 break-all text-left">
-              TxHash: <a href={`https://stellar.expert/explorer/testnet/tx/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
-              Network: Soroban Testnet
+              TxHash: <a href={submissionNetwork.includes("Cardano") ? `https://preprod.cardanoscan.io/transaction/${txHash}` : `https://stellar.expert/explorer/testnet/tx/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
+              Network: {submissionNetwork}
             </div>
             <button 
               onClick={() => setStep(1)}

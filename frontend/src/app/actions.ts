@@ -102,3 +102,21 @@ export async function submitProofViaRelayer(bountyId: number, destAddress: strin
     };
   }
 }
+
+export async function submitProofViaCardanoRelayer(bountyId: number, laceAddress: string, evidenceCid: string) {
+  // Wait for 1.5 seconds to simulate Plutus V2 transaction building and signing
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+
+  // The Relayer (Node.js) verifies the Midnight ZK Proof locally.
+  // Once verified, the Relayer signs a Cardano transaction with its own private key.
+  // The Aiken Plutus contract verifies the Relayer's signature and releases the ADA/Tokens to the laceAddress.
+  
+  // Return a mock Blockfrost transaction hash on Cardano Preprod
+  const mockTxHash = "0x" + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
+
+  return {
+    success: true,
+    txHash: mockTxHash,
+    network: "Cardano Preprod"
+  };
+}
