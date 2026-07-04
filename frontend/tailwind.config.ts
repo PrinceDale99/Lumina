@@ -9,15 +9,35 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        slate: {
-          900: '#0f172a',
-          800: '#1e293b',
-        },
-        blue: {
-          900: '#1e3a8a',
+        background: "#050505",
+        surface: "#0A0B10",
+        surfaceHover: "#12141c",
+        cyan: {
+          neon: "#00F0FF",
         },
         green: {
-          neon: '#39ff14',
+          neon: "#39FF14",
+        },
+      },
+      animation: {
+        "glow-pulse": "glow-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "float": "float 6s ease-in-out infinite",
+        "blob": "blob 7s infinite",
+      },
+      keyframes: {
+        "glow-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: ".5", filter: "brightness(1.5)" },
+        },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-10px)" },
+        },
+        "blob": {
+          "0%": { transform: "translate(0px, 0px) scale(1)" },
+          "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+          "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+          "100%": { transform: "translate(0px, 0px) scale(1)" },
         }
       },
       backgroundImage: {

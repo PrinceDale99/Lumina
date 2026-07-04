@@ -1,0 +1,12 @@
+{
+  "name": "lumina-circuits",
+  "version": "1.0.0",
+  "description": "Midnight Compact Circuits for Lumina",
+  "scripts": {
+    "compile": "compactc src/employee.compact --target typescript --out-dir build/"
+  },
+  "dependencies": {
+    "@midnight-ntwrk/compact-runtime": "latest",
+    "@midnight-ntwrk/ledger": "latest"
+  }
+}

@@ -14,6 +14,7 @@ pub enum DataKey {
     Bounty(u64),
     Evidence(u64),
     Nullifier(BytesN<32>),
+    ArbiterNullifier(u64, BytesN<32>),
 }
 
 #[contract]
@@ -36,6 +37,7 @@ impl LuminaContract {
         bounty_id: u64,
         target_hash: BytesN<32>,
         amount: i128,
+        required_approvals: u32,
     ) -> Result<(), Error> {
         caller.require_auth();
         
@@ -49,6 +51,8 @@ impl LuminaContract {
             target_hash,
             amount,
             status: BountyStatus::Open,
+            required_approvals,
+            approvals: 0,
         };
 
         env.storage().persistent().set(&DataKey::Bounty(bounty_id), &bounty);
@@ -91,19 +95,43 @@ impl LuminaContract {
         Ok(())
     }
 
-    /// Approve the payout (Restricted to Arbiters)
-    pub fn approve_payout(env: Env, caller: Address, bounty_id: u64) -> Result<(), Error> {
-        caller.require_auth();
-        let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
-        if caller != admin {
-            return Err(Error::NotAuthorized);
-        }
-
+    /// Anonymous Arbiter Voting (ZK-Proof Governance)
+    pub fn vote_payout(
+        env: Env, 
+        bounty_id: u64,
+        arbiter_nullifier: BytesN<32>,
+        vote_yes: bool,
+        _zk_proof: BytesN<64>,
+    ) -> Result<(), Error> {
         let mut bounty: Bounty = env.storage().persistent().get(&DataKey::Bounty(bounty_id))
             .ok_or(Error::BountyNotFound)?;
 
-        bounty.status = BountyStatus::Settled;
-        env.storage().persistent().set(&DataKey::Bounty(bounty_id), &bounty);
+        if bounty.status != BountyStatus::Reviewing {
+            return Err(Error::BountyNotFound); // Replace with appropriate error in production
+        }
+
+        let nullifier_key = DataKey::ArbiterNullifier(bounty_id, arbiter_nullifier.clone());
+        if env.storage().persistent().has(&nullifier_key) {
+            return Err(Error::SybilDetected); // Double voting
+        }
+
+        // Mock: Cryptographically verify ZK proof that the caller is an authorized Arbiter
+        // and that they have not voted before using this nullifier.
+        let is_valid_proof = true; 
+        if !is_valid_proof {
+            return Err(Error::InvalidProof);
+        }
+
+        env.storage().persistent().set(&nullifier_key, &true);
+
+        if vote_yes {
+            bounty.approvals += 1;
+            if bounty.approvals >= bounty.required_approvals {
+                bounty.status = BountyStatus::Settled;
+            }
+            env.storage().persistent().set(&DataKey::Bounty(bounty_id), &bounty);
+        }
+
         Ok(())
     }
 

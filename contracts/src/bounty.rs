@@ -15,6 +15,8 @@ pub struct Bounty {
     pub target_hash: BytesN<32>,
     pub amount: i128,
     pub status: BountyStatus,
+    pub required_approvals: u32,
+    pub approvals: u32,
 }
 
 #[contracttype]
