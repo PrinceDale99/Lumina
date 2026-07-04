@@ -19,7 +19,9 @@ export async function generateZKProof(destAddress: string) {
   try {
     destWalletBuffer = StrKey.decodeEd25519PublicKey(destAddress);
   } catch (e) {
-    destWalletBuffer = new Uint8Array(32); // Fallback if invalid
+    // If it's a Lace (Cardano) address or other format, fallback to SHA-256 hashing it into a 32-byte array
+    const crypto = await import('crypto');
+    destWalletBuffer = new Uint8Array(crypto.createHash('sha256').update(destAddress || "empty").digest());
   }
 
   // Execute the mathematical ZK circuit server-side

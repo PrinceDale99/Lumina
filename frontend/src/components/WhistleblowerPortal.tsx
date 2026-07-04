@@ -239,31 +239,47 @@ export default function WhistleblowerPortal() {
             <div className="text-slate-300 text-left bg-background p-6 rounded-2xl border border-white/10 shadow-inner relative overflow-hidden">
               <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500" />
               <strong className="text-purple-400 block mb-2 text-lg">HYBRID RELAYER ARCHITECTURE:</strong> 
-              Connect a fresh Freighter wallet to serve as your receiving address.
+              Connect a fresh wallet to serve as your receiving address.
               <br/><br/>
-              The Lumina Relayer backend will dynamically generate a burner account to pay all gas fees and interact with the smart contract. The ZK-proof strictly binds your connected wallet as the destination address so the XLM is sent straight to you when released!
+              The Lumina Relayer backend will dynamically generate a burner account to pay all gas fees and interact with the smart contract. The ZK-proof strictly binds your connected wallet as the destination address!
+              <br/><br/>
+              <span className="text-xs text-slate-500">(Note: Since Lumina Escrow is deployed on Soroban, selecting Lace will technically bind a Cardano address to the proof. This routes XLM via our conceptual cross-chain bridge logic. Freighter is recommended for direct Soroban routing.)</span>
             </div>
             
             {pubKey ? (
-              <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-xl text-purple-300 font-mono text-sm break-all">
-                Connected: {pubKey}
+              <>
+                <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-xl text-purple-300 font-mono text-sm break-all">
+                  Connected: {pubKey}
+                </div>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setStep(5)} 
+                  className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+                >
+                  Continue to Proof Broadcast
+                </motion.button>
+              </>
+            ) : (
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => connect('freighter')} 
+                  className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(168,85,247,0.2)] flex items-center justify-center"
+                >
+                  Connect Freighter
+                </motion.button>
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => connect('lace')} 
+                  className="bg-cyan-neon/10 hover:bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(0,240,255,0.2)] flex items-center justify-center"
+                >
+                  Connect Lace
+                </motion.button>
               </div>
-            ) : null}
-
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={async () => {
-                if (!pubKey) {
-                  await connect();
-                } else {
-                  setStep(5);
-                }
-              }} 
-              className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(168,85,247,0.2)]"
-            >
-              {pubKey ? "Continue to Proof Broadcast" : "Connect Freighter Wallet"}
-            </motion.button>
+            )}
           </motion.div>
         )}
 
