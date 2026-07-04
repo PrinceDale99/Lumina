@@ -24,26 +24,16 @@ export default function WalletConnect() {
           </button>
         </motion.div>
       ) : (
-        <div className="flex space-x-2">
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => connect('freighter')}
-            className="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 hover:shadow-[0_0_20px_rgba(57,255,20,0.2)] hover:border-green-neon/50 flex items-center"
-          >
-            <Wallet className="w-4 h-4 mr-2 text-green-neon" />
-            Freighter
-          </motion.button>
-          <motion.button 
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => connect('lace')}
-            className="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:border-cyan-neon/50 flex items-center"
-          >
-            <Wallet className="w-4 h-4 mr-2 text-cyan-neon" />
-            Lace
-          </motion.button>
-        </div>
+        <motion.button 
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={connect}
+          className="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 hover:shadow-[0_0_20px_rgba(0,240,255,0.2)] hover:border-cyan-neon/50 flex items-center relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-neon/10 to-transparent -translate-x-full group-hover:translate-x-full duration-1000 transition-transform" />
+          <Wallet className="w-4 h-4 mr-2 text-cyan-neon" />
+        </motion.button>
+      )}
     </>
   );
 }

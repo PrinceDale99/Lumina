@@ -3,7 +3,7 @@ import { useWallet } from "@/lib/WalletContext";
 import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { generateZKProof, submitProofViaRelayer, submitProofViaCardanoRelayer } from "@/app/actions";
+import { generateZKProof, submitProofViaCardanoRelayer } from "@/app/actions";
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
@@ -19,8 +19,7 @@ export default function WhistleblowerPortal() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [bountyId, setBountyId] = useState("");
   const [evidenceText, setEvidenceText] = useState("");
-  const [submissionNetwork, setSubmissionNetwork] = useState<string>("Soroban Testnet");
-  const { pubKey, walletType, connect } = useWallet();
+  const { pubKey, connect } = useWallet();
 
   useEffect(() => {
     // Only used to reset logs if needed
@@ -81,20 +80,13 @@ export default function WhistleblowerPortal() {
 
     setIsSubmitting(true);
     try {
-      setZkLog(l => [...l, `Relaying to ${walletType === 'lace' ? 'Cardano Preprod' : 'Soroban'} via anonymous burner...`]);
+      setZkLog(l => [...l, "Relaying to Cardano Preprod via anonymous burner..."]);
       const evidenceCid = "QmX9a... (Encrypted)";
       
-      let response;
-      if (walletType === 'lace') {
-        response = await submitProofViaCardanoRelayer(Number(bountyId), pubKey, evidenceCid);
-        setSubmissionNetwork(response.network || "Cardano Preprod");
-      } else {
-        response = await submitProofViaRelayer(Number(bountyId), pubKey, evidenceCid);
-        setSubmissionNetwork("Soroban Testnet");
-      }
+      const response = await submitProofViaCardanoRelayer(Number(bountyId), pubKey, evidenceCid);
       
       if (!response.success) {
-        throw new Error(response.error || `Transaction failed on ${walletType === 'lace' ? 'Cardano' : 'Soroban'}`);
+        throw new Error(response.error || "Transaction failed on Cardano Preprod");
       }
 
       setTxHash(response.txHash);
@@ -245,48 +237,36 @@ export default function WhistleblowerPortal() {
             <Zap className="w-16 h-16 text-purple-500 mx-auto drop-shadow-[0_0_15px_rgba(168,85,247,0.5)]" />
             <h2 className="text-2xl font-extrabold text-white">Connect Receiving Wallet</h2>
             <div className="text-slate-300 text-left bg-background p-6 rounded-2xl border border-white/10 shadow-inner relative overflow-hidden">
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500" />
-              <strong className="text-purple-400 block mb-2 text-lg">HYBRID RELAYER ARCHITECTURE:</strong> 
-              Connect a fresh wallet to serve as your receiving address.
+              <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-neon" />
+              <strong className="text-cyan-neon block mb-2 text-lg">CARDANO HYBRID RELAYER:</strong> 
+              Connect your Lace wallet to serve as your receiving address.
               <br/><br/>
-              The Lumina Relayer backend will dynamically generate a burner account to pay all gas fees and interact with the smart contract. The ZK-proof strictly binds your connected wallet as the destination address!
-              <br/><br/>
-              <span className="text-xs text-slate-500">(Note: Since Lumina Escrow is deployed on Soroban, selecting Lace will technically bind a Cardano address to the proof. This routes XLM via our conceptual cross-chain bridge logic. Freighter is recommended for direct Soroban routing.)</span>
+              The Lumina Relayer backend will dynamically generate a burner account to pay all gas fees and interact with the Cardano smart contract. The Midnight ZK-proof strictly binds your connected wallet as the destination address!
             </div>
             
             {pubKey ? (
               <>
-                <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded-xl text-purple-300 font-mono text-sm break-all">
+                <div className="bg-cyan-neon/10 border border-cyan-neon/30 p-4 rounded-xl text-cyan-neon font-mono text-sm break-all">
                   Connected: {pubKey}
                 </div>
                 <motion.button 
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setStep(5)} 
-                  className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(168,85,247,0.2)]"
+                  className="bg-cyan-neon/20 hover:bg-cyan-neon/30 border border-cyan-neon/50 text-cyan-neon font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(0,240,255,0.2)]"
                 >
                   Continue to Proof Broadcast
                 </motion.button>
               </>
             ) : (
-              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => connect('freighter')} 
-                  className="bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(168,85,247,0.2)] flex items-center justify-center"
-                >
-                  Connect Freighter
-                </motion.button>
-                <motion.button 
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => connect('lace')} 
-                  className="bg-cyan-neon/10 hover:bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(0,240,255,0.2)] flex items-center justify-center"
-                >
-                  Connect Lace
-                </motion.button>
-              </div>
+              <motion.button 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={connect} 
+                className="bg-cyan-neon/10 hover:bg-cyan-neon/20 border border-cyan-neon/50 text-cyan-neon font-bold py-4 px-8 rounded-xl transition-all w-full shadow-[0_0_20px_rgba(0,240,255,0.2)] flex items-center justify-center"
+              >
+                Connect Lace Wallet
+              </motion.button>
             )}
           </motion.div>
         )}
@@ -313,9 +293,9 @@ export default function WhistleblowerPortal() {
               {isSubmitting ? (
                 <span className="flex items-center justify-center">
                   <div className="w-6 h-6 border-4 border-background border-t-transparent rounded-full animate-spin mr-3" />
-                  Broadcasting to {walletType === 'lace' ? 'Cardano...' : 'Soroban...'}
+                  Broadcasting to Cardano Preprod...
                 </span>
-              ) : `Submit Proof to ${walletType === 'lace' ? 'Cardano Preprod' : 'Soroban'} Escrow`}
+              ) : "Submit Proof to Cardano Escrow"}
             </motion.button>
           </motion.div>
         )}
@@ -327,12 +307,12 @@ export default function WhistleblowerPortal() {
             </div>
             <h2 className="text-3xl font-black text-white tracking-tight">Proof Submitted Successfully</h2>
             <p className="text-slate-400 text-lg">
-              Your Zero-Knowledge Proof has been verified by the {submissionNetwork} smart contract. 
+              Your Zero-Knowledge Proof has been verified by the Cardano smart contract. 
               The escrow will be released to your anonymous wallet once arbiters approve the evidence.
             </p>
             <div className="bg-black/30 p-4 rounded-xl border border-white/5 font-mono text-sm text-green-neon/70 mt-4 break-all text-left">
-              TxHash: <a href={submissionNetwork.includes("Cardano") ? `https://preprod.cardanoscan.io/transaction/${txHash}` : `https://stellar.expert/explorer/testnet/tx/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
-              Network: {submissionNetwork}
+              TxHash: <a href={`https://preprod.cardanoscan.io/transaction/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
+              Network: Cardano Preprod
             </div>
             <button 
               onClick={() => setStep(1)}
