@@ -3,10 +3,17 @@
   "version": "1.0.0",
   "description": "Midnight Compact Circuits for Lumina",
   "scripts": {
-    "compile": "compactc src/employee.compact --target typescript --out-dir build/"
+    "compile": "compactc src/employee.compact --target typescript --out-dir build/",
+    "deploy": "ts-node deploy.ts"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "latest",
-    "@midnight-ntwrk/ledger": "latest"
+    "@midnight-ntwrk/ledger": "latest",
+    "@midnight-ntwrk/midnight-js": "latest",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }

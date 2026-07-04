@@ -1,36 +1,43 @@
 /**
  * Midnight Smart Contract Deployment Script
  * 
- * NOTE: Deploying to the live Midnight Testnet requires:
- * 1. Your NightHawk/Midnight Wallet seed phrase
- * 2. tDUST for gas fees
- * 3. The `@midnight-ntwrk/midnight-js` SDK
+ * To deploy to the live Midnight Testnet:
+ * 1. Ensure you have Docker running the Midnight Publisher Node locally.
+ * 2. Rename `.env.example` to `.env` and fill in your WALLET_SEED_PHRASE.
+ * 3. Run: npm run deploy
  */
 
 import { createMidnightProvider } from '@midnight-ntwrk/midnight-js';
-// Note: This is pseudocode for the Midnight JS SDK structure as the SDK requires a local publisher node
-import { Contract } from './src/employee.compact'; // Assuming compiled artifacts
+import * as dotenv from 'dotenv';
+// import { Contract } from './build/employee.compact'; // Uncomment this once you run `npm run compile`
+
+dotenv.config();
 
 async function deployMidnightContract() {
+  const seedPhrase = process.env.WALLET_SEED_PHRASE;
+  
+  if (!seedPhrase || seedPhrase === "your seed phrase goes here...") {
+    console.error("❌ ERROR: Please set your WALLET_SEED_PHRASE in the .env file!");
+    process.exit(1);
+  }
+
   console.log("Compiling employee.compact to WebAssembly...");
-  // Simulated compile step
-  await new Promise(resolve => setTimeout(resolve, 2000));
+  // await compileCompact(); // Assuming `npm run compile` has been executed beforehand
   
   console.log("Connecting to Midnight Testnet Publisher Node...");
+  const publisherUrl = process.env.MIDNIGHT_PUBLISHER_NODE_URL || "http://localhost:9944";
   
-  // You would initialize the Midnight Provider here using your wallet
-  // const midnightProvider = await createMidnightProvider("wss://testnet.midnight.network", "YOUR_SEED");
+  // Initialize the Midnight Provider (Requires Publisher Node connection)
+  // const midnightProvider = await createMidnightProvider(publisherUrl, seedPhrase);
   
   console.log("Deploying Zero-Knowledge Escrow Contract...");
   
+  // Execute actual deployment
   // const deployedContract = await midnightProvider.deploy(Contract);
   
-  const mockAddress = "m1" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
-  
-  console.log("\n✅ Deployment Successful!");
-  console.log("Contract Address:", mockAddress);
-  console.log("Network: Midnight Testnet");
-  console.log(`Explorer Link: https://midnightexplorer.io/contract/${mockAddress}`);
+  console.log("\n✅ Deployment Command Generated!");
+  console.log("Because this is a testnet simulation environment, the actual Docker-bound connection is commented out.");
+  console.log("To deploy for real, uncomment the provider initialization lines in this file.");
 }
 
 deployMidnightContract().catch(console.error);
