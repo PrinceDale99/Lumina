@@ -3,7 +3,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDemoMode } from "@/lib/DemoModeContext";
 import { useWallet } from "@/lib/WalletContext";
-import { rpc, Contract, nativeToScVal, TransactionBuilder, Networks, Address } from "@stellar/stellar-sdk";
+import { rpc, Contract, nativeToScVal, TransactionBuilder, Networks, Address, Keypair, Account, scValToNative } from "@stellar/stellar-sdk";
 import { signTransaction } from "@stellar/freighter-api";
 
 const SOROBAN_RPC = "https://soroban-testnet.stellar.org";
@@ -67,7 +67,6 @@ export default function RegulatorDashboard() {
     if (isDemoMode) return;
     const fetchBalance = async () => {
       try {
-        const { Keypair, Account, scValToNative } = await import("@stellar/stellar-sdk");
         const nativeToken = new Contract("CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC");
         const kp = Keypair.random();
         const tx = new TransactionBuilder(new Account(kp.publicKey(), "0"), {
