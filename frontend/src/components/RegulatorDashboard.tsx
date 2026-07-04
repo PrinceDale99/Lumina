@@ -81,7 +81,7 @@ export default function RegulatorDashboard() {
       .build();
 
       const preparedTx = await server.prepareTransaction(tx);
-      const signedXdr = await signTransaction(preparedTx.toXDR(), { network: "TESTNET" });
+      const signedXdr = await signTransaction(preparedTx.toXDR(), { networkPassphrase: "Test SDF Network ; September 2015" });
       const signedTx = rpc.assembleTransaction(preparedTx, signedXdr);
 
       const response = await server.submitTransaction(signedTx);
