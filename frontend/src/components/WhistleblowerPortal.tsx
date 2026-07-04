@@ -108,8 +108,8 @@ export default function WhistleblowerPortal() {
       const preparedTx = await server.prepareTransaction(tx);
 
       // 4. Request user signature via Freighter wallet extension
-      const signedXdr = await signTransaction(preparedTx.toXDR(), { networkPassphrase: "Test SDF Network ; September 2015" });
-      const signedTx = rpc.assembleTransaction(preparedTx, signedXdr);
+      const { signedTxXdr } = await signTransaction(preparedTx.toXDR(), { networkPassphrase: "Test SDF Network ; September 2015" });
+      const signedTx = TransactionBuilder.fromXDR(signedTxXdr, Networks.TESTNET) as any;
 
       // 5. Submit to the Stellar Testnet
       const response = await server.submitTransaction(signedTx);
