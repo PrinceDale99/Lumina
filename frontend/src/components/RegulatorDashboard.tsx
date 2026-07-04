@@ -2,6 +2,13 @@ import { Shield, Plus, TrendingUp, Activity, CheckCircle2, Scale, Eye, ThumbsUp,
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useState } from "react";
 import { useDemoMode } from "@/lib/DemoModeContext";
+import { useWallet } from "@/lib/WalletContext";
+import { rpc, Contract, nativeToScVal, TransactionBuilder, Networks } from "@stellar/stellar-sdk";
+import { signTransaction } from "@stellar/freighter-api";
+
+const SOROBAN_RPC = "https://soroban-testnet.stellar.org";
+const CONTRACT_ID = "CAR453YPMSCZQ2QURK4IKUACEAPVWUU2TZX2UBPT7SOLC6PYRQJMNG6H";
+const server = new rpc.Server(SOROBAN_RPC);
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -32,40 +39,78 @@ export default function RegulatorDashboard() {
     { id: 2, entity: "Entity #2 Investigation", amount: "50,000", bid: "200X9A" }
   ]);
   const { isDemoMode } = useDemoMode();
+  const { pubKey, connect } = useWallet();
 
   const castVote = (id: number, vote: boolean) => {
     // In a real app, this generates the ZK Proof of Arbiter status
     setVotingOn(null);
   };
 
-  const handleDeploy = (e: React.FormEvent) => {
+  const handleDeploy = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!targetEntity || !registryKey || !escrowAmount) return;
+
+    if (!pubKey) {
+      alert("Please connect your Freighter wallet to act as the Regulator.");
+      await connect();
+      return;
+    }
 
     setIsDeploying(true);
     setDeploySuccess(false);
     
-    setTimeout(() => {
-      setIsDeploying(false);
+    try {
+      const sourceAccount = await server.getAccount(pubKey);
+      const contract = new Contract(CONTRACT_ID);
+      const bountyId = Math.floor(Math.random() * 1000000); // Random u32
+      const amount = BigInt(escrowAmount);
+      const arbiters = Number(requiredArbiters);
+
+      const tx = new TransactionBuilder(sourceAccount, {
+        fee: "100000",
+        networkPassphrase: Networks.TESTNET,
+      })
+      .addOperation(contract.call(
+        "deploy_bounty",
+        nativeToScVal(bountyId, { type: 'u32' }),
+        nativeToScVal(targetEntity, { type: 'string' }),
+        nativeToScVal(amount, { type: 'i128' }),
+        nativeToScVal(arbiters, { type: 'u32' })
+      ))
+      .setTimeout(30)
+      .build();
+
+      const preparedTx = await server.prepareTransaction(tx);
+      const signedXdr = await signTransaction(preparedTx.toXDR(), { network: "TESTNET" });
+      const signedTx = rpc.assembleTransaction(preparedTx, signedXdr);
+
+      const response = await server.submitTransaction(signedTx);
+      
+      if (response.status === "ERROR") {
+        throw new Error("Transaction failed on Soroban");
+      }
+
       setDeploySuccess(true);
       
       const newBounty = { 
-        id: bounties.length + 1, 
+        id: bountyId, 
         entity: targetEntity, 
         amount: Number(escrowAmount).toLocaleString(), 
         bid: registryKey.substring(0, 6) 
       };
       
-      // Append real submitted data
       setBounties([newBounty, ...bounties]);
-      
-      // Clear form
       setTargetEntity("");
       setRegistryKey("");
       setEscrowAmount("");
       
       setTimeout(() => setDeploySuccess(false), 5000);
-    }, 2500);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Soroban Error: ${err.message}`);
+    } finally {
+      setIsDeploying(false);
+    }
   };
 
   return (

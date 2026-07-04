@@ -3,6 +3,13 @@ import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircl
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { generateZKProof } from "@/app/actions";
+import { useWallet } from "@/lib/WalletContext";
+import { rpc, Contract, nativeToScVal, TransactionBuilder, Networks, Address } from "@stellar/stellar-sdk";
+import { signTransaction } from "@stellar/freighter-api";
+
+const SOROBAN_RPC = "https://soroban-testnet.stellar.org";
+const CONTRACT_ID = "CAR453YPMSCZQ2QURK4IKUACEAPVWUU2TZX2UBPT7SOLC6PYRQJMNG6H";
+const server = new rpc.Server(SOROBAN_RPC);
 
 const fadeUp: Variants = {
   hidden: { opacity: 0, y: 30, scale: 0.95 },
@@ -15,6 +22,8 @@ export default function WhistleblowerPortal() {
   const [isEncrypting, setIsEncrypting] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [zkLog, setZkLog] = useState<string[]>([]);
+  const [txHash, setTxHash] = useState<string | null>(null);
+  const { pubKey, connect } = useWallet();
 
   useEffect(() => {
     // Only used to reset logs if needed
@@ -65,12 +74,58 @@ export default function WhistleblowerPortal() {
     }, 2000);
   };
 
-  const submitToSoroban = () => {
+  const submitToSoroban = async () => {
+    if (!pubKey) {
+      alert("Please connect your clean Freighter wallet first!");
+      await connect();
+      return;
+    }
+
     setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      // 1. Fetch source account from Soroban
+      const sourceAccount = await server.getAccount(pubKey);
+      
+      // 2. Build the contract call payload
+      const contract = new Contract(CONTRACT_ID);
+      const bountyId = 1; // Example hardcoded active bounty ID 1
+      const evidenceCid = "QmX9a... (Encrypted)";
+      
+      const tx = new TransactionBuilder(sourceAccount, {
+        fee: "100000",
+        networkPassphrase: Networks.TESTNET,
+      })
+      .addOperation(contract.call(
+        "submit_proof",
+        nativeToScVal(bountyId, { type: 'u32' }),
+        new Address(pubKey).toScVal(),
+        nativeToScVal(evidenceCid, { type: 'string' })
+      ))
+      .setTimeout(30)
+      .build();
+
+      // 3. Prepare the transaction for Soroban
+      const preparedTx = await server.prepareTransaction(tx);
+
+      // 4. Request user signature via Freighter wallet extension
+      const signedXdr = await signTransaction(preparedTx.toXDR(), { network: "TESTNET" });
+      const signedTx = rpc.assembleTransaction(preparedTx, signedXdr);
+
+      // 5. Submit to the Stellar Testnet
+      const response = await server.submitTransaction(signedTx);
+      
+      if (response.status === "ERROR") {
+        throw new Error("Transaction failed on Soroban");
+      }
+
+      setTxHash(response.hash);
       setStep(6);
-    }, 3000);
+    } catch (err: any) {
+      console.error(err);
+      alert(`Soroban Error: ${err.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -259,8 +314,8 @@ export default function WhistleblowerPortal() {
               The escrow will be released to your anonymous wallet once arbiters approve the evidence.
             </p>
             <div className="bg-black/30 p-4 rounded-xl border border-white/5 font-mono text-sm text-green-neon/70 mt-4 break-all text-left">
-              TxHash: 0x8f2a9b4c0e3d1f...<br/>
-              Block: 1849203
+              TxHash: <a href={`https://stellar.expert/explorer/testnet/tx/${txHash}`} target="_blank" rel="noreferrer" className="underline hover:text-white transition-colors">{txHash || "0x8f2a9b4c0e3d1f..."}</a><br/>
+              Network: Soroban Testnet
             </div>
             <button 
               onClick={() => setStep(1)}

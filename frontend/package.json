@@ -13,6 +13,7 @@
     "@creit.tech/stellar-wallets-kit": "^2.5.0",
     "@midnight-ntwrk/compact-runtime": "^0.16.0",
     "@stellar/freighter-api": "^6.0.1",
+    "@stellar/stellar-sdk": "^16.0.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.23.0",
