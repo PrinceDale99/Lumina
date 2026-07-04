@@ -84,7 +84,7 @@ export default function RegulatorDashboard() {
       const { signedTxXdr } = await signTransaction(preparedTx.toXDR(), { networkPassphrase: "Test SDF Network ; September 2015" });
       const signedTx = TransactionBuilder.fromXDR(signedTxXdr, Networks.TESTNET) as any;
 
-      const response = await server.submitTransaction(signedTx);
+      const response = await server.sendTransaction(signedTx);
       
       if (response.status === "ERROR") {
         throw new Error("Transaction failed on Soroban");

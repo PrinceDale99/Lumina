@@ -112,7 +112,7 @@ export default function WhistleblowerPortal() {
       const signedTx = TransactionBuilder.fromXDR(signedTxXdr, Networks.TESTNET) as any;
 
       // 5. Submit to the Stellar Testnet
-      const response = await server.submitTransaction(signedTx);
+      const response = await server.sendTransaction(signedTx);
       
       if (response.status === "ERROR") {
         throw new Error("Transaction failed on Soroban");
