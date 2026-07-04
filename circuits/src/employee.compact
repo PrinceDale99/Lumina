@@ -10,9 +10,6 @@ export circuit verifyEmployee(
     validityThreshold: Uint<32>
 ): [Boolean, Bytes<32>, Bytes<32>] {
     
-    // Check if the employment timestamp is valid
-    let isEmployedDuringFraud: Boolean = employmentTimestamp >= validityThreshold;
-    
     // Output the proof boolean, the company pub key, and the bounty ID (simulated nullifier)
-    return [isEmployedDuringFraud, companyPubKey, bountyId];
+    return [employmentTimestamp >= validityThreshold, companyPubKey, bountyId];
 }
