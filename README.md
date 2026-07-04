@@ -6,6 +6,9 @@
 
 Lumina is a decentralized, zero-knowledge financial escrow system designed to protect whistleblowers. It allows corporate insiders to mathematically prove their employment status and submit encrypted evidence of fraud—**without ever revealing their identity**.
 
+### The Initial Product Idea
+The conceptualization of Lumina began with a simple question: How can we mathematically guarantee the safety of those who risk everything to expose corporate corruption? Traditional whistleblowing systems rely heavily on trust—trust in institutions, trust in lawyers, and trust in centralized platforms. Lumina was conceived to replace this fragile trust with immutable cryptography. The goal was to build an unstoppable, trustless escrow mechanism where the validity of an insider's claims could be proven mathematically, and the financial reward distributed automatically, all while strictly preserving the whistleblower's absolute anonymity.
+
 ---
 
 ## 🛑 The Problem
@@ -33,6 +36,11 @@ Lumina uses the **Midnight Network's Compact language** to write specialized Zer
   1. The user is a valid employee of the target entity.
   2. The user has not submitted a claim before (preventing Sybil attacks via a cryptographic Nullifier).
 * **Absolute Privacy:** The actual credential never leaves the device. It is mathematically impossible for regulators, the blockchain, or the target corporation to reverse-engineer the whistleblower's identity.
+
+#### Public State vs Private Witness
+A fundamental paradigm in Lumina's Midnight integration is the separation of **Public State** and **Private Witness**. 
+* **Private Witness:** Highly sensitive data—such as the whistleblower's digital employment signature, exact timestamp of hire, and private key—acts as the *Private Witness*. This data is ingested locally by the Compact Prover but is **never** broadcasted, stored, or revealed to the network. 
+* **Public State:** The network only ever sees the *Public State*—the output of the ZK circuit. In Lumina, this consists solely of a boolean (Valid/Invalid), the Target Company's Public Key, and a Cryptographic Nullifier (to prevent double-claiming). By strictly gating private variables from the public ledger, Lumina guarantees that on-chain analytics can never expose the whistleblower.
 
 ### Why Stellar (Soroban)?
 Lumina utilizes **Stellar's Soroban Smart Contracts** for the financial escrow and arbitration layer.
@@ -74,10 +82,11 @@ Once the predefined threshold of arbiter votes is reached, the Soroban contract 
 
 ### Prerequisites
 * Node.js (v18+)
-* Freighter Wallet Extension
+* Rust and Cargo (for Soroban Smart Contracts)
+* Stellar CLI
 * A secure connection (VPN/Tor recommended for whistleblowers)
 
-### Installation
+### Installation & Local Setup
 
 1. **Clone the repository:**
    ```bash
@@ -91,20 +100,31 @@ Once the predefined threshold of arbiter votes is reached, the Soroban contract 
    cd frontend && npm install
    ```
 
-3. **Run the development server:**
+3. **Run the Next.js Frontend:**
    ```bash
    cd frontend
    npm run dev
    ```
+   Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+### Smart Contract Deployment (Soroban)
+To deploy the Lumina Escrow contract to the Stellar Testnet:
+```bash
+cd contracts/escrow
+stellar contract build
+stellar contract deploy --network testnet --source <your-alias>
+```
+*Screenshot: Successful Soroban Contract Deployment on Stellar Testnet*  
+<img src="public/Smart%20Contract.png" width="600" alt="Smart Contract Deployment" />
 
-### Compiling ZK Circuits (Optional)
-If you wish to modify the Midnight Zero-Knowledge circuits, you will need a Linux environment or GitHub Codespaces with the Midnight toolchain installed.
+### Compiling ZK Circuits (Midnight Compact)
+If you wish to modify the Midnight Zero-Knowledge circuits, you will need the Midnight toolchain installed.
 ```bash
 cd circuits
 npm run compile
 ```
+*Screenshot: Successful Midnight Compact Compilation*  
+<img src="public/Compile%20Output.png" width="600" alt="Compile Output" />
 
 ---
 
