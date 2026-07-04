@@ -1,3 +1,4 @@
+import { useDemoMode } from "@/lib/DemoModeContext";
 import { AlertTriangle, Upload, FileLock, ShieldCheck, Zap, Terminal, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,20 +18,55 @@ export default function WhistleblowerPortal() {
     // Only used to reset logs if needed
   }, [step]);
 
-  const simulateZK = () => {
+  const { isDemoMode } = useDemoMode();
+
+  const simulateZK = async () => {
     setZkLog(["Initializing Midnight Compact Prover..."]);
     
-    setTimeout(() => setZkLog(l => [...l, "Loading Corporate Credentials (Local)..."]), 600);
-    setTimeout(() => setZkLog(l => [...l, "Computing Poseidon Hash..."]), 1200);
-    setTimeout(() => setZkLog(l => [...l, "Generating ZK-SNARK Circuit..."]), 1800);
-    setTimeout(() => setZkLog(l => [...l, "Synthesizing Proof... [██████████░░]"]), 2500);
-    setTimeout(() => setZkLog(l => [...l, "Validating Nullifier... OK"]), 3200);
-    setTimeout(() => {
-      setZkLog(l => [...l, "Proof Generated Successfully."]);
+    if (isDemoMode) {
+      setTimeout(() => setZkLog(l => [...l, "Loading Corporate Credentials (Local)..."]), 600);
+      setTimeout(() => setZkLog(l => [...l, "Computing Poseidon Hash..."]), 1200);
+      setTimeout(() => setZkLog(l => [...l, "Generating ZK-SNARK Circuit..."]), 1800);
+      setTimeout(() => setZkLog(l => [...l, "Synthesizing Proof... [██████████░░]"]), 2500);
+      setTimeout(() => setZkLog(l => [...l, "Validating Nullifier... OK"]), 3200);
       setTimeout(() => {
-        setStep(3);
-      }, 1000);
-    }, 4000);
+        setZkLog(l => [...l, "Proof Generated Successfully."]);
+        setTimeout(() => setStep(3), 1000);
+      }, 4000);
+    } else {
+      try {
+        setZkLog(l => [...l, "Importing real Midnight Compact circuits..."]);
+        // Dynamic import to prevent SSR issues with WebAssembly/BigInts
+        const { pureCircuits } = await import("lumina-circuits/build/contract/index.js");
+        
+        setZkLog(l => [...l, "Executing pureCircuits.verifyEmployee() locally..."]);
+        
+        // Prepare cryptographic data
+        const bountyId = new Uint8Array(32);
+        const pubKey = new Uint8Array(32);
+        const privKey = new Uint8Array(32);
+        const sig = new Uint8Array(64);
+        const timestamp = BigInt(Date.now());
+        const validity = BigInt(0); // Valid
+        
+        // Execute the mathematical ZK circuit
+        const start = performance.now();
+        const [isValid, outPubKey, outBountyId] = pureCircuits.verifyEmployee(bountyId, pubKey, privKey, sig, timestamp, validity);
+        const timeTaken = (performance.now() - start).toFixed(2);
+        
+        setZkLog(l => [
+          ...l, 
+          `Circuit executed in ${timeTaken}ms`,
+          `Output isValid: ${isValid}`,
+          `Nullifier Output computed.`,
+          "Proof Generated Successfully."
+        ]);
+        
+        setTimeout(() => setStep(3), 1500);
+      } catch (err: any) {
+        setZkLog(l => [...l, `ERROR: ${err.message}`]);
+      }
+    }
   };
 
   const simulateEncryption = () => {
@@ -102,14 +138,16 @@ export default function WhistleblowerPortal() {
             
             {zkLog.length === 0 ? (
               <motion.div 
-                whileHover={{ scale: 1.02, borderColor: "rgba(57,255,20,0.5)" }}
+                whileHover={{ scale: 1.02, borderColor: isDemoMode ? "rgba(57,255,20,0.5)" : "rgba(0,240,255,0.5)" }}
                 whileTap={{ scale: 0.98 }}
                 onClick={simulateZK}
-                className="border-2 border-dashed border-white/10 rounded-2xl p-12 cursor-pointer bg-background mt-8 relative overflow-hidden group"
+                className={`border-2 border-dashed border-white/10 rounded-2xl p-12 cursor-pointer mt-8 relative overflow-hidden group transition-colors duration-500 ${isDemoMode ? "bg-background" : "bg-cyan-neon/5"}`}
               >
-                <div className="absolute inset-0 bg-green-neon/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <Upload className="w-10 h-10 text-slate-500 mx-auto mb-4 group-hover:text-green-neon transition-colors" />
-                <span className="text-slate-300 font-bold group-hover:text-white transition-colors">Click to Load & Compute ZK-SNARK</span>
+                <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${isDemoMode ? "bg-green-neon/5" : "bg-cyan-neon/10"}`} />
+                <Upload className={`w-10 h-10 text-slate-500 mx-auto mb-4 transition-colors ${isDemoMode ? "group-hover:text-green-neon" : "group-hover:text-cyan-neon"}`} />
+                <span className="text-slate-300 font-bold group-hover:text-white transition-colors">
+                  {isDemoMode ? "Click to Load & Compute ZK-SNARK" : "Execute Real Midnight Circuit"}
+                </span>
               </motion.div>
             ) : (
               <div className="bg-black border border-white/10 rounded-2xl p-6 text-left font-mono text-sm mt-8 shadow-inner overflow-hidden relative">

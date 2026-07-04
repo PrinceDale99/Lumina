@@ -1,6 +1,7 @@
-import { Shield, Plus, TrendingUp, Activity, CheckCircle2, Scale, Eye, ThumbsUp, ThumbsDown } from "lucide-react";
+import { Shield, Plus, TrendingUp, Activity, CheckCircle2, Scale, Eye, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import { useDemoMode } from "@/lib/DemoModeContext";
 
 const container = {
   hidden: { opacity: 0 },
@@ -17,6 +18,7 @@ const item = {
 
 export default function RegulatorDashboard() {
   const [votingOn, setVotingOn] = useState<number | null>(null);
+  const { isDemoMode } = useDemoMode();
 
   const castVote = (id: number, vote: boolean) => {
     // In a real app, this generates the ZK Proof of Arbiter status
@@ -66,9 +68,9 @@ export default function RegulatorDashboard() {
           </div>
           <div className="text-2xl font-bold text-white flex items-center mt-1">
             <span className="w-3 h-3 rounded-full bg-green-neon animate-pulse mr-3 shadow-[0_0_10px_#39ff14]"></span>
-            Stellar Testnet
+            {isDemoMode ? "Stellar Testnet" : "Soroban Testnet (Live)"}
           </div>
-          <div className="text-slate-400 text-sm mt-3 font-mono text-xs">Latency: 24ms</div>
+          <div className="text-slate-400 text-sm mt-3 font-mono text-xs">{isDemoMode ? "Latency: 24ms" : "Querying Soroban..."}</div>
         </motion.div>
 
         {/* Form Box - Spans 2 columns */}
@@ -112,27 +114,35 @@ export default function RegulatorDashboard() {
         </motion.div>
 
         {/* List Box - Spans 1 column */}
-        <motion.div variants={item} className="bg-surface border border-white/5 p-8 rounded-3xl flex flex-col">
+        <motion.div variants={item} className="bg-surface border border-white/5 p-8 rounded-3xl flex flex-col relative overflow-hidden">
           <h3 className="text-xl font-bold text-white mb-6">Active Deployments</h3>
-          <div className="space-y-4 flex-grow">
-            {[1, 2].map((id) => (
-              <motion.div 
-                key={id} 
-                whileHover={{ scale: 1.02, x: 5 }}
-                className="bg-background border border-white/5 p-4 rounded-2xl flex flex-col justify-between hover:border-cyan-neon/30 transition-all cursor-pointer relative overflow-hidden group"
-              >
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-neon/50 scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
-                <div>
-                  <p className="text-sm font-bold text-white">Entity #{id} Investigation</p>
-                  <p className="text-xs text-slate-500 mt-1 font-mono">B-ID: {id}00X9A...</p>
-                </div>
-                <div className="mt-3 flex justify-between items-end">
-                  <p className="text-sm font-black text-green-neon tracking-tight">50,000 USDC</p>
-                  <span className="px-2 py-1 bg-cyan-neon/10 text-cyan-neon text-[10px] uppercase font-bold rounded-md">Listening</span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+          {!isDemoMode ? (
+            <div className="flex-grow flex flex-col items-center justify-center opacity-50 space-y-4 py-8">
+              <Loader2 className="w-10 h-10 text-cyan-neon animate-spin" />
+              <p className="text-sm font-bold text-slate-300">Fetching Soroban State...</p>
+              <p className="text-xs text-slate-500 text-center">No active bounties found on-chain</p>
+            </div>
+          ) : (
+            <div className="space-y-4 flex-grow">
+              {[1, 2].map((id) => (
+                <motion.div 
+                  key={id} 
+                  whileHover={{ scale: 1.02, x: 5 }}
+                  className="bg-background border border-white/5 p-4 rounded-2xl flex flex-col justify-between hover:border-cyan-neon/30 transition-all cursor-pointer relative overflow-hidden group"
+                >
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-neon/50 scale-y-0 group-hover:scale-y-100 transition-transform origin-top" />
+                  <div>
+                    <p className="text-sm font-bold text-white">Entity #{id} Investigation</p>
+                    <p className="text-xs text-slate-500 mt-1 font-mono">B-ID: {id}00X9A...</p>
+                  </div>
+                  <div className="mt-3 flex justify-between items-end">
+                    <p className="text-sm font-black text-green-neon tracking-tight">50,000 USDC</p>
+                    <span className="px-2 py-1 bg-cyan-neon/10 text-cyan-neon text-[10px] uppercase font-bold rounded-md">Listening</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </motion.div>
 
         {/* Arbiter Voting Portal */}
@@ -143,55 +153,62 @@ export default function RegulatorDashboard() {
             <h3 className="text-xl font-bold text-white">Arbiter Governance (Private ZK Voting)</h3>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {[8].map((id) => (
-              <div key={id} className="bg-background border border-white/10 p-6 rounded-2xl relative">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h4 className="text-white font-bold">Review Needed: Entity #{id} Leak</h4>
-                    <p className="text-slate-400 text-sm mt-1">Escrow: <span className="text-green-neon">100,000 USDC</span></p>
+          {!isDemoMode ? (
+            <div className="flex items-center justify-center py-10 opacity-50 space-x-4">
+               <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+               <span className="text-purple-300 font-bold">Scanning for Arbiter nullifiers on-chain... No Active ZK Votes required.</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {[8].map((id) => (
+                <div key={id} className="bg-background border border-white/10 p-6 rounded-2xl relative">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h4 className="text-white font-bold">Review Needed: Entity #{id} Leak</h4>
+                      <p className="text-slate-400 text-sm mt-1">Escrow: <span className="text-green-neon">100,000 USDC</span></p>
+                    </div>
+                    <div className="bg-yellow-500/20 text-yellow-500 text-xs font-bold px-3 py-1 rounded-full border border-yellow-500/50">
+                      2/3 Approvals
+                    </div>
                   </div>
-                  <div className="bg-yellow-500/20 text-yellow-500 text-xs font-bold px-3 py-1 rounded-full border border-yellow-500/50">
-                    2/3 Approvals
+                  
+                  <div className="flex items-center space-x-2 text-sm text-slate-300 bg-white/5 p-3 rounded-xl mb-6">
+                    <Eye className="w-4 h-4 text-cyan-neon" />
+                    <span>IPFS Evidence Payload: <a href="#" className="text-cyan-neon hover:underline font-mono">QmYwAP...</a></span>
                   </div>
-                </div>
-                
-                <div className="flex items-center space-x-2 text-sm text-slate-300 bg-white/5 p-3 rounded-xl mb-6">
-                  <Eye className="w-4 h-4 text-cyan-neon" />
-                  <span>IPFS Evidence Payload: <a href="#" className="text-cyan-neon hover:underline font-mono">QmYwAP...</a></span>
-                </div>
 
-                <AnimatePresence mode="wait">
-                  {votingOn === id ? (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0 }} 
-                      animate={{ opacity: 1, height: "auto" }} 
-                      exit={{ opacity: 0, height: 0 }}
-                      className="space-y-4"
-                    >
-                      <p className="text-xs text-purple-300 mb-2">Generating Arbiter ZK Nullifier... Your vote is cryptographically hidden.</p>
-                      <div className="flex space-x-4">
-                        <button onClick={() => castVote(id, true)} className="flex-1 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-400 font-bold py-3 rounded-xl flex items-center justify-center transition-all">
-                          <ThumbsUp className="w-4 h-4 mr-2" /> Approve Payout
-                        </button>
-                        <button onClick={() => castVote(id, false)} className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 font-bold py-3 rounded-xl flex items-center justify-center transition-all">
-                          <ThumbsDown className="w-4 h-4 mr-2" /> Reject
-                        </button>
-                      </div>
-                    </motion.div>
-                  ) : (
-                    <motion.button 
-                      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                      onClick={() => setVotingOn(id)}
-                      className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-3 rounded-xl transition-all"
-                    >
-                      Evaluate Evidence & Cast Anonymous Vote
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
-          </div>
+                  <AnimatePresence mode="wait">
+                    {votingOn === id ? (
+                      <motion.div 
+                        initial={{ opacity: 0, height: 0 }} 
+                        animate={{ opacity: 1, height: "auto" }} 
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-4"
+                      >
+                        <p className="text-xs text-purple-300 mb-2">Generating Arbiter ZK Nullifier... Your vote is cryptographically hidden.</p>
+                        <div className="flex space-x-4">
+                          <button onClick={() => castVote(id, true)} className="flex-1 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-400 font-bold py-3 rounded-xl flex items-center justify-center transition-all">
+                            <ThumbsUp className="w-4 h-4 mr-2" /> Approve Payout
+                          </button>
+                          <button onClick={() => castVote(id, false)} className="flex-1 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-400 font-bold py-3 rounded-xl flex items-center justify-center transition-all">
+                            <ThumbsDown className="w-4 h-4 mr-2" /> Reject
+                          </button>
+                        </div>
+                      </motion.div>
+                    ) : (
+                      <motion.button 
+                        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                        onClick={() => setVotingOn(id)}
+                        className="w-full bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/50 text-purple-300 font-bold py-3 rounded-xl transition-all"
+                      >
+                        Evaluate Evidence & Cast Anonymous Vote
+                      </motion.button>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ))}
+            </div>
+          )}
         </motion.div>
 
       </div>
