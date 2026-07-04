@@ -3,7 +3,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDemoMode } from "@/lib/DemoModeContext";
 import { useWallet } from "@/lib/WalletContext";
-import { rpc, Contract, nativeToScVal, TransactionBuilder, Networks } from "@stellar/stellar-sdk";
+import { rpc, Contract, nativeToScVal, TransactionBuilder, Networks, Address } from "@stellar/stellar-sdk";
 import { signTransaction } from "@stellar/freighter-api";
 
 const SOROBAN_RPC = "https://soroban-testnet.stellar.org";
