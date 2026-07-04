@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+.next/
+
+# Rust/Cargo
+target/
+**/*.rs.bk
+
+# Env
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.pk
+
+# Midnight
+proofs/
+*.zkp
