@@ -1,6 +1,6 @@
 import { Shield, Plus, TrendingUp, Activity, CheckCircle2, Scale, Eye, ThumbsUp, ThumbsDown, Loader2 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDemoMode } from "@/lib/DemoModeContext";
 import { useWallet } from "@/lib/WalletContext";
 import { rpc, Contract, nativeToScVal, TransactionBuilder, Networks } from "@stellar/stellar-sdk";
@@ -40,6 +40,51 @@ export default function RegulatorDashboard() {
   ]);
   const { isDemoMode } = useDemoMode();
   const { pubKey, connect } = useWallet();
+  const [contractBalance, setContractBalance] = useState("0");
+
+  useEffect(() => {
+    if (isDemoMode) return;
+    const fetchBalance = async () => {
+      try {
+        const nativeToken = new Contract("CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC");
+        const tx = new TransactionBuilder(await server.getAccount("GA2C5RFPE6G6KXHEIRHZX6NJEAERCBPGWNTTRELOBBZMNDCG41I23333" /* dummy account to fetch */), {
+          fee: "100",
+          networkPassphrase: Networks.TESTNET,
+        })
+        .addOperation(nativeToken.call("balance", new Address(CONTRACT_ID).toScVal()))
+        .setTimeout(30)
+        .build();
+
+        // Simulate the transaction to get the result without signing
+        const sim = await server.simulateTransaction(tx);
+        if (sim.result?.retval) {
+          // Native token balance is returned as i128 (scval)
+          // We can't parse it easily directly, but we can do a rough extraction or just use Friendbot response.
+          // Wait! Let's just use a simple fetch to Horizon to get the account balance of the contract ID!
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    // Let's use Horizon because Soroban contracts are also Horizon accounts!
+    const fetchHorizonBalance = async () => {
+      try {
+        // Contract ID string must be C...
+        // We can check Horizon account for C...
+        const res = await fetch(`https://horizon-testnet.stellar.org/accounts/${CONTRACT_ID}`);
+        if (res.ok) {
+          const data = await res.json();
+          const nativeBal = data.balances.find((b: any) => b.asset_type === "native");
+          if (nativeBal) {
+            setContractBalance(Number(nativeBal.balance).toLocaleString(undefined, {maximumFractionDigits: 0}));
+          }
+        }
+      } catch(e) {}
+    };
+    fetchHorizonBalance();
+    const interval = setInterval(fetchHorizonBalance, 10000);
+    return () => clearInterval(interval);
+  }, [isDemoMode]);
 
   const castVote = (id: number, vote: boolean) => {
     // In a real app, this generates the ZK Proof of Arbiter status
@@ -155,7 +200,7 @@ export default function RegulatorDashboard() {
             <span className="font-semibold text-sm">Contract Balance</span>
           </div>
           <div className="text-4xl font-black text-white">
-            {isDemoMode ? "2.1M XLM" : "0 XLM"}
+            {isDemoMode ? "2.1M XLM" : `${contractBalance} XLM`}
           </div>
           <div className="text-slate-400 text-sm mt-2">Available for Escrow</div>
         </motion.div>
