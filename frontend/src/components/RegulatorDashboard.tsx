@@ -67,8 +67,10 @@ export default function RegulatorDashboard() {
     if (isDemoMode) return;
     const fetchBalance = async () => {
       try {
+        const { Keypair, Account, scValToNative } = await import("@stellar/stellar-sdk");
         const nativeToken = new Contract("CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC");
-        const tx = new TransactionBuilder(await server.getAccount("GA2C5RFPE6G6KXHEIRHZX6NJEAERCBPGWNTTRELOBBZMNDCG41I23333" /* dummy account to fetch */), {
+        const kp = Keypair.random();
+        const tx = new TransactionBuilder(new Account(kp.publicKey(), "0"), {
           fee: "100",
           networkPassphrase: Networks.TESTNET,
         })
@@ -76,34 +78,18 @@ export default function RegulatorDashboard() {
         .setTimeout(30)
         .build();
 
-        // Simulate the transaction to get the result without signing
         const sim = await server.simulateTransaction(tx);
         if (sim.result?.retval) {
-          // Native token balance is returned as i128 (scval)
-          // We can't parse it easily directly, but we can do a rough extraction or just use Friendbot response.
-          // Wait! Let's just use a simple fetch to Horizon to get the account balance of the contract ID!
+          const balBigInt = scValToNative(sim.result.retval);
+          const xlmBal = Number(balBigInt) / 10000000;
+          setContractBalance(xlmBal.toLocaleString(undefined, {maximumFractionDigits: 0}));
         }
       } catch (e) {
         console.error(e);
       }
     };
-    // Let's use Horizon because Soroban contracts are also Horizon accounts!
-    const fetchHorizonBalance = async () => {
-      try {
-        // Contract ID string must be C...
-        // We can check Horizon account for C...
-        const res = await fetch(`https://horizon-testnet.stellar.org/accounts/${CONTRACT_ID}`);
-        if (res.ok) {
-          const data = await res.json();
-          const nativeBal = data.balances.find((b: any) => b.asset_type === "native");
-          if (nativeBal) {
-            setContractBalance(Number(nativeBal.balance).toLocaleString(undefined, {maximumFractionDigits: 0}));
-          }
-        }
-      } catch(e) {}
-    };
-    fetchHorizonBalance();
-    const interval = setInterval(fetchHorizonBalance, 10000);
+    fetchBalance();
+    const interval = setInterval(fetchBalance, 10000);
     return () => clearInterval(interval);
   }, [isDemoMode]);
 
