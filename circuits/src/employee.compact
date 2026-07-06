@@ -1,6 +1,15 @@
 // Lumina Employee Verification Circuit
 // Language: Midnight Compact
 
+pragma language_version 0.23;
+
+export ledger deployed: Boolean;
+
+export constructor() {
+    deployed = true;
+}
+
+
 export circuit verifyEmployee(
     bountyId: Bytes<32>,
     companyPubKey: Bytes<32>,

@@ -15,7 +15,11 @@ export type PureCircuits = {
                  privateKey_0: Uint8Array,
                  corporateSignature_0: Uint8Array,
                  employmentTimestamp_0: bigint,
-                 validityThreshold_0: bigint): [boolean, Uint8Array, Uint8Array];
+                 validityThreshold_0: bigint,
+                 destinationWallet_0: Uint8Array): [boolean,
+                                                    Uint8Array,
+                                                    Uint8Array,
+                                                    Uint8Array];
 }
 
 export type Circuits<PS> = {
@@ -25,12 +29,15 @@ export type Circuits<PS> = {
                  privateKey_0: Uint8Array,
                  corporateSignature_0: Uint8Array,
                  employmentTimestamp_0: bigint,
-                 validityThreshold_0: bigint): __compactRuntime.CircuitResults<PS, [boolean,
-                                                                                    Uint8Array,
-                                                                                    Uint8Array]>;
+                 validityThreshold_0: bigint,
+                 destinationWallet_0: Uint8Array): __compactRuntime.CircuitResults<PS, [boolean,
+                                                                                        Uint8Array,
+                                                                                        Uint8Array,
+                                                                                        Uint8Array]>;
 }
 
 export type Ledger = {
+  readonly deployed: boolean;
 }
 
 export type ContractReferenceLocations = any;

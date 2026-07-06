@@ -1,0 +1,2 @@
+[01:45:05.261] INFO (15456): Initializing wallet builder for Testnet
+[01:45:05.341] INFO (15456): Creating dust wallet with params: {"indexerClientConnection":{"indexerHttpUrl":"https://indexer.testnet-02.midnight.network","indexerWsUrl":"wss://indexer.testnet-02.midnight.network"},"provingServerUrl":"http://localhost:6300/","networkId":"Testnet","relayURL":"wss://rpc.testnet-02.midnight.network/","txHistoryStorage":{"storage":{}},"costParameters":{"ledgerParams":{"__wbg_ptr":4653104},"additionalFeeOverhead":"0","feeBlocksMargin":5}}

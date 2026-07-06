@@ -86,7 +86,7 @@ export default function WhistleblowerPortal() {
       const response = await submitProofViaMidnightRelayer(Number(bountyId), pubKey, evidenceCid);
       
       if (!response.success) {
-        throw new Error(response.error || "Transaction failed on Midnight Testnet");
+        throw new Error((response as any).error || "Transaction failed on Midnight Testnet");
       }
 
       setTxHash(response.txHash);

@@ -49,6 +49,13 @@
             "type-name": "Uint",
             "maxval": 4294967295
           }
+        },
+        {
+          "name": "destinationWallet",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
         }
       ],
       "result-type": {
@@ -56,6 +63,10 @@
         "types": [
           {
             "type-name": "Boolean"
+          },
+          {
+            "type-name": "Bytes",
+            "length": 32
           },
           {
             "type-name": "Bytes",
@@ -74,5 +85,14 @@
   "contracts": [
   ],
   "ledger": [
+    {
+      "name": "deployed",
+      "index": 0,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Boolean"
+      }
+    }
   ]
 }
