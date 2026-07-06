@@ -1,0 +1,34 @@
+[23:26:37.577] INFO (37776): Initializing wallet builder for Undeployed
+[23:26:37.622] INFO (37776): Creating dust wallet with params: {"indexerClientConnection":{"indexerHttpUrl":"http://127.0.0.1:8088/api/v4/graphql","indexerWsUrl":"ws://127.0.0.1:8088/api/v4/graphql/ws"},"provingServerUrl":"http://127.0.0.1:6300/","networkId":"Undeployed","relayURL":"ws://127.0.0.1:9944/","txHistoryStorage":{"storage":{}},"costParameters":{"ledgerParams":{"__wbg_ptr":4653104},"additionalFeeOverhead":"0","feeBlocksMargin":5}}
+[23:26:37.654] INFO (37776): Getting initial state of wallet...
+[23:26:37.668] INFO (37776): Your wallet seed is: 408b285c123836004f4b8842c89324c1f01382450c0d439af345ba7fc49acf705489c6fc77dbd4e3dc1dd8cc6bc9f043db8ada1e243c4a0eafb290d399480840 and your address is: 9408aeffbeedc6b9b45e1bcc621d1a273fb67f77de3f65bfbb1814d84f8b6524
+[23:26:37.673] INFO (37776): Starting wallet...
+[23:26:37.709] INFO (37776): Your wallet address is: mn_addr_undeployed19kxg8sxrsty37elmm6yd68tuy7prryjst2r48eapf2fdtd8z4gpqauuvtx, waiting for NIGHT funds...
+[23:26:37.710] INFO (37776): Syncing wallet...
+[23:26:37.727] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=false, dust=false }
+[23:26:37.728] INFO (37776): Wallet synced state emission (synced=false): { shielded=false, unshielded=false, dust=false }
+[23:26:37.786] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:26:37.842] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:26:37.872] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:26:37.939] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:26:37.991] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:26:38.050] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:26:38.104] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:26:38.247] INFO (37776): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:26:38.286] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:26:38.339] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:26:38.400] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:26:38.457] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:26:38.515] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:26:38.566] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:26:38.613] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:26:38.660] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=true }
+[23:27:07.780] INFO (37776): Wallet synced state emission: { shielded=true, unshielded=true, dust=true }
+[23:27:07.781] INFO (37776): Wallet synced state emission (synced=true): { shielded=true, unshielded=true, dust=true }
+[23:27:07.781] INFO (37776): Sync complete
+[23:27:07.783] INFO (37776): Wallet balances after sync - Shielded: {}, Unshielded: {}, Dust: {}
+[23:27:07.788] INFO (37776): Wallet has no dust; registering NIGHT UTXOs for dust generation...
+[23:27:07.829] WARN (37776): No unregistered NIGHT UTXOs available to register for dust generation
+[23:27:07.834] INFO (37776): Your wallet NIGHT balance is: 0
+[23:27:07.837] INFO (37776): Your wallet NIGHT balance is: 0
+[23:27:07.851] INFO (37776): Deploying Zero-Knowledge Escrow Contract to Midnight Local Testnet...

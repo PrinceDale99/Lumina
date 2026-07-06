@@ -3,22 +3,19 @@
   "version": "1.0.0",
   "description": "Midnight Compact Circuits for Lumina",
   "scripts": {
-    "compile": "node -e \"process.env.COMPACTC_VERSION='0.16.0'; require('child_process').execSync('npx run-compactc compile src/employee.compact build/', {stdio: 'inherit'})\"",
+    "compile": "node -e \"process.env.COMPACTC_VERSION='0.15.0'; require('child_process').execSync('npx run-compactc compile src/employee.compact build/', {stdio: 'inherit'})\"",
     "deploy": "ts-node deploy.ts"
   },
   "dependencies": {
-    "@midnight-ntwrk/compact-runtime": "latest",
-    "@midnight-ntwrk/ledger": "latest",
-    "@midnight-ntwrk/midnight-js": "latest",
+    "@midnight-ntwrk/compact-runtime": "^0.15.0",
+    "@midnight-ntwrk/ledger": "^4.0.0",
+    "@midnight-ntwrk/midnight-js": "^4.1.1",
     "@midnight-ntwrk/midnight-js-contracts": "^4.1.1",
     "@midnight-ntwrk/midnight-js-http-client-proof-provider": "^4.1.1",
     "@midnight-ntwrk/midnight-js-indexer-public-data-provider": "^4.1.1",
     "@midnight-ntwrk/midnight-js-level-private-state-provider": "^4.1.1",
     "@midnight-ntwrk/midnight-js-node-zk-config-provider": "^4.1.1",
     "@midnight-ntwrk/testkit-js": "^4.1.1",
-    "@midnight-ntwrk/wallet": "^5.0.0",
-    "@midnight-ntwrk/wallet-sdk-indexer-client": "^1.2.2",
-    "@midnight-ntwrk/wallet-sdk-prover-client": "^1.2.2",
     "dotenv": "^16.4.5"
   },
   "devDependencies": {

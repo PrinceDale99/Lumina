@@ -25,3 +25,8 @@ export circuit verifyEmployee(
     // This mathematically binds the ZK-proof to the whistleblower's specific destination wallet!
     return [employmentTimestamp >= validityThreshold, companyPubKey, bountyId, destinationWallet];
 }
+
+export circuit dummyProvable(): [] {
+    deployed = false;
+    return [];
+}

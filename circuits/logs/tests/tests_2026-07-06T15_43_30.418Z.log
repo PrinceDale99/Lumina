@@ -1,0 +1,36 @@
+[23:43:30.618] INFO (11904): Initializing wallet builder for Undeployed
+[23:43:30.741] INFO (11904): Creating dust wallet with params: {"indexerClientConnection":{"indexerHttpUrl":"http://127.0.0.1:8088/api/v4/graphql","indexerWsUrl":"ws://127.0.0.1:8088/api/v4/graphql/ws"},"provingServerUrl":"http://127.0.0.1:6300/","networkId":"Undeployed","relayURL":"ws://127.0.0.1:9944/","txHistoryStorage":{"storage":{}},"costParameters":{"ledgerParams":{"__wbg_ptr":4653104},"additionalFeeOverhead":"0","feeBlocksMargin":5}}
+[23:43:30.796] INFO (11904): Getting initial state of wallet...
+[23:43:30.818] INFO (11904): Your wallet seed is: 408b285c123836004f4b8842c89324c1f01382450c0d439af345ba7fc49acf705489c6fc77dbd4e3dc1dd8cc6bc9f043db8ada1e243c4a0eafb290d399480840 and your address is: 9408aeffbeedc6b9b45e1bcc621d1a273fb67f77de3f65bfbb1814d84f8b6524
+[23:43:30.828] INFO (11904): Starting wallet...
+[23:43:30.882] INFO (11904): Your wallet address is: mn_addr_undeployed19kxg8sxrsty37elmm6yd68tuy7prryjst2r48eapf2fdtd8z4gpqauuvtx, waiting for NIGHT funds...
+[23:43:30.883] INFO (11904): Syncing wallet...
+[23:43:30.941] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=false, dust=false }
+[23:43:30.949] INFO (11904): Wallet synced state emission (synced=false): { shielded=false, unshielded=false, dust=false }
+[23:43:31.245] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=false, dust=false }
+[23:43:31.315] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=false, dust=false }
+[23:43:31.316] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=false, dust=false }
+[23:43:31.316] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:43:31.398] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:43:31.429] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:43:31.704] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:43:31.834] INFO (11904): Wallet synced state emission: { shielded=false, unshielded=true, dust=false }
+[23:43:32.002] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:32.206] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:32.344] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:32.453] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:32.571] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:32.738] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:32.846] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:32.948] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:33.020] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:33.021] INFO (11904): Wallet synced state emission (synced=false): { shielded=true, unshielded=true, dust=false }
+[23:43:33.122] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=false }
+[23:43:33.187] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=true }
+[23:44:01.091] INFO (11904): Wallet synced state emission: { shielded=true, unshielded=true, dust=true }
+[23:44:01.092] INFO (11904): Wallet synced state emission (synced=true): { shielded=true, unshielded=true, dust=true }
+[23:44:01.092] INFO (11904): Sync complete
+[23:44:01.095] INFO (11904): Wallet balances after sync - Shielded: {}, Unshielded: {"0000000000000000000000000000000000000000000000000000000000000000":"50000000000"}, Dust: "77296447660718186"
+[23:44:01.100] INFO (11904): Your wallet NIGHT balance is: 50000000000
+[23:44:01.119] INFO (11904): Your wallet NIGHT balance is: 50000000000
+[23:44:01.160] INFO (11904): Deploying Zero-Knowledge Escrow Contract to Midnight Local Testnet...

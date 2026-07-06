@@ -10,13 +10,14 @@ import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-p
 import { httpClientProofProvider } from '@midnight-ntwrk/midnight-js-http-client-proof-provider';
 import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+import { dummyContractAddress } from '@midnight-ntwrk/compact-runtime';
 import * as dotenv from 'dotenv';
 import { Contract } from './build/contract/index.js';
 
 dotenv.config();
 
 async function main() {
-  const seedPhrase = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art";
+  const seedPhrase = process.env.SEED || 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon art';
 
   setNetworkId('Undeployed');
   console.log("Connecting to Local Midnight Network...");
@@ -61,13 +62,23 @@ async function main() {
 
   logger.info('Deploying Zero-Knowledge Escrow Contract to Midnight Local Testnet...');
   
-  // Since we are blocked by the compiler version mismatch (0.5.1 vs 0.16.0), 
-  // we will bypass the actual transaction submission for now so you can continue building your UI.
-  const mockAddress = 'bba6579743ae23b44301d4a9f8df30dbd5244d63a59d8fbc2c9fc7ea521a04f8';
-  logger.info(`Setting the contract address...`);
-  logger.info(`Contract deployed at: ${mockAddress}`);
+  // Shim for v0.5.1 compiler output running on v4.1.1 SDK
+  const compiledContractShim = {
+    [Symbol.for('compactContextTypeId')]: {
+      ctor: Contract,
+      witnesses: {}
+    }
+  };
+
+  const deployed = await deployContract(providers as any, {
+    compiledContract: compiledContractShim as any,
+    privateStateId: 'lumina-escrow-state',
+    initialPrivateState: {}
+  });
+
+  logger.info(`Contract deployed at: ${deployed.deployTxData.public.contractAddress}`);
   
-  return { contractAddress: mockAddress };
+  return { contractAddress: deployed.deployTxData.public.contractAddress };
   process.exit(0);
 }
 
