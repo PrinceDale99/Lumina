@@ -26,7 +26,7 @@ export async function generateZKProof(destAddress: string) {
 
   // Execute the mathematical ZK circuit server-side
   const start = performance.now();
-  const [isValid, outPubKey, outBountyId, outDestWallet] = pureCircuits.verifyEmployee(
+  const [isValid, outPubKey, outBountyId, outDestWallet] = (pureCircuits as any).verifyEmployee(
     bountyId,
     pubKey,
     privKey,
