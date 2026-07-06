@@ -1,0 +1,26 @@
+pragma language_version >= 0.23;
+
+import CompactStandardLibrary;
+
+// We store the last verified wallet on the blockchain to prove it was verified
+export ledger lastVerifiedWallet: Opaque<"string">;
+
+export circuit init(): [] {
+    // Initialization is not strictly necessary for Opaque types, but we keep the empty circuit just in case.
+}
+
+export circuit verifyEmployee(
+    bountyId: Bytes<32>, 
+    companyPubKey: Bytes<32>, 
+    privateKey: Bytes<32>,
+    corporateSignature: Bytes<64>,
+    employmentTimestamp: Uint<32>,
+    validityThreshold: Uint<32>,
+    destinationWallet: Opaque<"string">
+): [] {
+    // Pure mathematical verification logic
+    assert(employmentTimestamp >= validityThreshold, "Employment timestamp must be greater than or equal to the validity threshold");
+    
+    // Store the verified wallet to make this a provable, state-mutating circuit
+    lastVerifiedWallet = disclose(destinationWallet);
+}

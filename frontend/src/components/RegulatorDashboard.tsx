@@ -3,7 +3,7 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useDemoMode } from "@/lib/DemoModeContext";
 import { useWallet } from "@/lib/WalletContext";
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_MIDNIGHT_CONTRACT_ADDRESS || "bba6579743ae23b44301d4a9f8df30dbd5244d63a59d8fbc2c9fc7ea521a04f8";
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_MIDNIGHT_CONTRACT_ADDRESS || "a0e6682e0a90f07f7eedc295a0f5c3729f7e1c3e6caac38d229cf1a5fa32b6f8";
 const INDEXER_URL = process.env.NEXT_PUBLIC_MIDNIGHT_INDEXER_URL || "http://127.0.0.1:8088/api/v4/graphql";
 
 const container: Variants = {

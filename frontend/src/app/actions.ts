@@ -50,19 +50,31 @@ export async function generateZKProof(destAddress: string) {
 // Soroban Relayer functionality has been fully removed for the 100% Midnight Migration.
 
 export async function submitProofViaMidnightRelayer(bountyId: number, laceAddress: string, evidenceCid: string) {
-  // Wait for 1.5 seconds to simulate Compact smart contract transaction building and signing
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-
-  // The Relayer (Node.js) verifies the Midnight ZK Proof locally.
-  // Once verified, the Relayer signs a Midnight transaction with its own private key.
-  // The Compact smart contract verifies the Relayer's signature and releases the tDUST to the laceAddress.
+  const { exec } = await import("child_process");
+  const util = await import("util");
+  const execAsync = util.promisify(exec);
+  const path = await import("path");
   
-  // Return a mock Midnight transaction hash
-  const mockTxHash = "0x" + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
-
-  return {
-    success: true,
-    txHash: mockTxHash,
-    network: "Midnight Testnet"
-  };
+  const contractDir = path.resolve(process.cwd(), "..", "lumina-contract");
+  
+  try {
+    const { stdout, stderr } = await execAsync(`npx tsx src/api_verify.ts "${laceAddress}"`, { cwd: contractDir });
+    const result = JSON.parse(stdout.trim().split('\n').pop() || "{}");
+    
+    if (!result.success) {
+        throw new Error(result.error || "Unknown Midnight error");
+    }
+    
+    return {
+      success: true,
+      txHash: result.txId,
+      network: "Midnight Local Devnet"
+    };
+  } catch (err: any) {
+    console.error("Midnight execution failed", err);
+    return {
+      success: false,
+      error: err.message
+    }
+  }
 }

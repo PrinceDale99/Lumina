@@ -12,7 +12,7 @@ import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 import { dummyContractAddress } from '@midnight-ntwrk/compact-runtime';
 import * as dotenv from 'dotenv';
-import { Contract } from './build/contract/index.js';
+import { Contract } from './build/contract_dummy/index.cjs';
 
 dotenv.config();
 
@@ -48,7 +48,7 @@ async function main() {
 
   console.log("Initializing Providers...");
 
-  const zkConfigProvider = new NodeZkConfigProvider('./build/contract');
+  const zkConfigProvider = new NodeZkConfigProvider('./build/contract_dummy');
   const proofProvider = httpClientProofProvider(envConfig.proofServer, zkConfigProvider);
 
   const providers = {
