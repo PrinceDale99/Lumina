@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: lumina-relayer
+    env: node
+    buildCommand: "cd lumina-contract && npm install"
+    startCommand: "cd lumina-contract && npm start"
+    envVars:
+      - key: NODE_VERSION
+        value: 22.0.0
+      - key: PRIVATE_STATE_PASSWORD
+        value: generate_a_strong_random_password_here
+      # Render will provide the internal URL to the proof server if deployed in the same Render team
+      - key: MIDNIGHT_PROOF_SERVER_URL
+        value: http://lumina-proof-server:6300

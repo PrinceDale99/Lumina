@@ -1,80 +1,48 @@
 "use server";
 
 export async function generateZKProof(destAddress: string) {
-  // Server-side dynamic import of the real circuit
-  // Node.js will read the WASM from the file system natively, bypassing Webpack browser WASM parsing bugs!
-  const { pureCircuits } = await import("lumina-circuits/build/contract/index.js");
-  const { StrKey } = await import("@stellar/stellar-sdk");
-
-  // Prepare cryptographic data
-  const bountyId = new Uint8Array(32);
-  const pubKey = new Uint8Array(32);
-  const privKey = new Uint8Array(32);
-  const sig = new Uint8Array(64);
-  const timestamp = BigInt(Math.floor(Date.now() / 1000));
-  const validity = BigInt(0); // Valid
-  
-  // Convert Stellar G-address string to 32-byte Ed25519 public key
-  let destWalletBuffer;
-  try {
-    destWalletBuffer = StrKey.decodeEd25519PublicKey(destAddress);
-  } catch (e) {
-    // If it's a Lace (Midnight) address or other format, fallback to SHA-256 hashing it into a 32-byte array
-    const crypto = await import('crypto');
-    destWalletBuffer = new Uint8Array(crypto.createHash('sha256').update(destAddress || "empty").digest());
-  }
-
-  // Execute the mathematical ZK circuit server-side
-  const start = performance.now();
-  const [isValid, outPubKey, outBountyId, outDestWallet] = (pureCircuits as any).verifyEmployee(
-    bountyId,
-    pubKey,
-    privKey,
-    sig,
-    timestamp,
-    validity,
-    destWalletBuffer
-  );
-  const timeTaken = (performance.now() - start).toFixed(2);
-
-  // Return serialized data (BigInts and Uint8Arrays must be serialized to JSON if sent to client)
+  // Mock function to prevent build errors since the ZK logic has been moved purely to the Relayer backend
   return {
-    isValid,
-    timeTaken,
-    outPubKey: Array.from(outPubKey),
-    outBountyId: Array.from(outBountyId),
-    outDestWallet: Array.from(outDestWallet),
+    isValid: true,
+    timeTaken: "0.00",
+    outPubKey: [],
+    outBountyId: [],
+    outDestWallet: []
   };
 }
 
-// Soroban Relayer functionality has been fully removed for the 100% Midnight Migration.
-
 export async function submitProofViaMidnightRelayer(bountyId: number, laceAddress: string, evidenceCid: string) {
-  const { exec } = await import("child_process");
-  const util = await import("util");
-  const execAsync = util.promisify(exec);
-  const path = await import("path");
-  
-  const contractDir = path.resolve(process.cwd(), "..", "lumina-contract");
-  
   try {
-    const { stdout, stderr } = await execAsync(`npx tsx src/api_verify.ts "${laceAddress}"`, { cwd: contractDir });
-    const result = JSON.parse(stdout.trim().split('\n').pop() || "{}");
+    const RELAYER_URL = process.env.MIDNIGHT_RELAYER_URL || 'http://127.0.0.1:3001';
+    console.log(`Sending verification request to Relayer: ${RELAYER_URL}/api/verify`);
+
+    // Use a long timeout as the relayer generates the ZK Proof and submits it to Midnight Testnet
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+    const response = await fetch(`${RELAYER_URL}/api/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ destinationWallet: laceAddress }),
+      signal: controller.signal
+    });
     
-    if (!result.success) {
-        throw new Error(result.error || "Unknown Midnight error");
+    clearTimeout(timeoutId);
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      console.error('Relayer verification failed:', data);
+      return { success: false, error: data.error || 'Verification failed on relayer' };
     }
-    
+
     return {
       success: true,
-      txHash: result.txId,
-      network: "Midnight Local Devnet"
+      txHash: data.txId,
+      network: "Midnight Testnet"
     };
-  } catch (err: any) {
-    console.error("Midnight execution failed", err);
-    return {
-      success: false,
-      error: err.message
-    }
+  } catch (error: any) {
+    console.error('Action error:', error);
+    return { success: false, error: error.message };
   }
 }
